@@ -35,9 +35,11 @@ public class AuthController {
     public ResponseEntity<CadastroResponse> cadastrar(
             @Valid @RequestBody CadastroRequest request) {
 
-        System.out.println(">>> ENTROU NO ENDPOINT DE CADASTRO");
+        System.out.println(">>> 1. ENTROU NO ENDPOINT DE CADASTRO");
 
         CadastroResponse resposta = usuarioService.cadastrar(request);
+
+        System.out.println(">>> 2. CADASTRO PROCESSADO COM SUCESSO");
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
