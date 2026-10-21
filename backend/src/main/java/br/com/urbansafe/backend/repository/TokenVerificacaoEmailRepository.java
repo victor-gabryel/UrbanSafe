@@ -9,4 +9,4 @@ public interface TokenVerificacaoEmailRepository
         extends JpaRepository<TokenVerificacaoEmail, Integer> {
 
     Optional<TokenVerificacaoEmail> findByTokenHash(String tokenHash);
-}
+}

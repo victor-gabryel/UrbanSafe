@@ -21,4 +21,4 @@ public record CadastroRequest(
     String senha
 
 ) {
-}
+}

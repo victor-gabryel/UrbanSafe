@@ -126,4 +126,4 @@ public class Usuario {
     public OffsetDateTime getAtualizadoEm() {
         return atualizadoEm;
     }
-}
+}

@@ -87,4 +87,4 @@ public class TokenVerificacaoEmail {
     public OffsetDateTime getCriadoEm() {
         return criadoEm;
     }
-}
+}

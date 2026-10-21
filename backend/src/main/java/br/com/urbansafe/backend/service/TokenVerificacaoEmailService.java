@@ -2,6 +2,7 @@ package br.com.urbansafe.backend.service;
 
 import br.com.urbansafe.backend.entity.TokenVerificacaoEmail;
 import br.com.urbansafe.backend.entity.Usuario;
+import br.com.urbansafe.backend.exception.ApiException;
 import br.com.urbansafe.backend.repository.TokenVerificacaoEmailRepository;
 import br.com.urbansafe.backend.repository.UsuarioRepository;
 
@@ -54,26 +55,22 @@ public class TokenVerificacaoEmailService {
     @Transactional
     public void verificarEmail(String tokenOriginal) {
         if (tokenOriginal == null || tokenOriginal.isBlank()) {
-            throw new IllegalArgumentException(
-                    "O token de verificação é obrigatório.");
+            throw ApiException.badRequest("O token de verificação é obrigatório.");
         }
 
         String hash = gerarHash(tokenOriginal);
 
         TokenVerificacaoEmail token = tokenRepository
                 .findByTokenHash(hash)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Token de verificação inválido."));
+                .orElseThrow(() -> ApiException.badRequest("Token de verificação inválido."));
 
         if (token.getUtilizadoEm() != null) {
-            throw new IllegalArgumentException(
-                    "Este token já foi utilizado.");
+            throw ApiException.badRequest("Este token já foi utilizado.");
         }
 
         if (!token.getExpiraEm().isAfter(
                 OffsetDateTime.now(ZoneOffset.UTC))) {
-            throw new IllegalArgumentException(
-                    "O token de verificação expirou.");
+            throw ApiException.badRequest("O token de verificação expirou.");
         }
 
         Usuario usuario = token.getUsuario();
@@ -99,4 +96,4 @@ public class TokenVerificacaoEmailService {
                     "Não foi possível gerar o hash do token.", e);
         }
     }
-}
+}

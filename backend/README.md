@@ -54,3 +54,21 @@ Se preferir iniciar pelo Spring Boot Dashboard do VS Code, configure as variáve
 - Quando o backend roda diretamente no Windows, `DB_URL` normalmente deve usar `localhost`, por exemplo: `jdbc:postgresql://localhost:5432/urbansafe`.
 - Quando o backend roda dentro do Docker Compose, a URL deve usar o nome do serviço do banco, por exemplo: `jdbc:postgresql://db:5432/urbansafe`.
 - Não compartilhe nem versione o arquivo `.env`; ele pode conter senhas. Mantenha-o no `.gitignore`.
+
+## Variáveis de ambiente
+
+Copie `.env.example` para `.env` e preencha. Obrigatórias: `DB_PASSWORD`, `MAIL_*`, `MAIL_FROM` e **`JWT_SECRET`** (mínimo 32 bytes; gere com `openssl rand -base64 48`). A aplicação não sobe sem `JWT_SECRET`.
+
+Opcionais: `JWT_ACCESS_EXPIRATION_MINUTES` (15), `JWT_REFRESH_EXPIRATION_DAYS` (7), `PASSWORD_RESET_EXPIRATION_MINUTES` (60), `FRONTEND_URL` (também define a origem liberada no CORS), `LOG_LEVEL_SECURITY` (INFO).
+
+## API de autenticação
+
+Exemplos de requisição/resposta para o Postman: [`docs/API-AUTH.md`](docs/API-AUTH.md).
+
+## Testes
+
+```powershell
+.\mvnw.cmd test
+```
+
+`BackendApplicationTests` (contextLoads) sobe o contexto completo e precisa do PostgreSQL e das variáveis do `.env` carregadas.

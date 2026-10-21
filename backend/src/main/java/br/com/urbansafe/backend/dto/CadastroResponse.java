@@ -9,4 +9,4 @@ public record CadastroResponse(
     boolean emailVerificado,
     OffsetDateTime dataCadastro
 ) {
-}
+}
