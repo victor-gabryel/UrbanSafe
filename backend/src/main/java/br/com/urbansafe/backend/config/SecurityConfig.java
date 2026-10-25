@@ -56,6 +56,14 @@ public class SecurityConfig {
                                                                 "/api/auth/refresh",
                                                                 "/api/auth/logout")
                                                 .permitAll()
+                                                // Documentação OpenAPI (desligue com SWAGGER_ENABLED=false).
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/v3/api-docs",
+                                                                "/v3/api-docs/**",
+                                                                "/swagger-ui.html",
+                                                                "/swagger-ui/**")
+                                                .permitAll()
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(
                                                 new JwtAuthenticationFilter(jwtService, usuarioRepository),

@@ -61,6 +61,10 @@ Copie `.env.example` para `.env` e preencha. Obrigatórias: `DB_PASSWORD`, `MAIL
 
 Opcionais: `JWT_ACCESS_EXPIRATION_MINUTES` (15), `JWT_REFRESH_EXPIRATION_DAYS` (7), `PASSWORD_RESET_EXPIRATION_MINUTES` (60), `FRONTEND_URL` (também define a origem liberada no CORS), `LOG_LEVEL_SECURITY` (INFO).
 
+Verificação de e-mail: `EMAIL_VERIFICATION_EXPIRATION_HOURS` (24), `EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS` (60), `EMAIL_VERIFICATION_RESEND_MAX_PER_WINDOW` (5) e `EMAIL_VERIFICATION_RESEND_WINDOW_MINUTES` (15). SMTP: `MAIL_STARTTLS` (true) e `MAIL_TIMEOUT_MS` (10000). O link enviado usa `FRONTEND_URL` + `/verificar-email?token=...`.
+
+Swagger: `http://localhost:8080/swagger-ui.html`. Use `SWAGGER_ENABLED=false` em produção. Atrás de proxy reverso, configure `server.forward-headers-strategy` para o limite de reenvio enxergar o IP real.
+
 ## API de autenticação
 
 Exemplos de requisição/resposta para o Postman: [`docs/API-AUTH.md`](docs/API-AUTH.md).

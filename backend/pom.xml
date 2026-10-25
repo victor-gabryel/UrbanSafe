@@ -29,6 +29,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- springdoc 3.x é a linha compatível com Spring Boot 4 / Spring Framework 7 -->
+		<springdoc.version>3.0.0</springdoc.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -68,6 +70,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<!-- OpenAPI / Swagger UI: /v3/api-docs e /swagger-ui.html -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>

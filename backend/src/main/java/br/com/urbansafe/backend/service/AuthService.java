@@ -3,9 +3,6 @@ package br.com.urbansafe.backend.service;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +18,6 @@ import br.com.urbansafe.backend.security.JwtService;
 @Service
 public class AuthService {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
-
     static final String MSG_CREDENCIAIS_INVALIDAS = "E-mail ou senha inválidos.";
 
     private final UsuarioRepository usuarioRepository;
@@ -30,7 +25,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final TokenVerificacaoEmailService tokenVerificacaoEmailService;
-    private final EmailService emailService;
+    private final VerificacaoEmailNotificador verificacaoNotificador;
 
     /** Hash descartável usado para gastar o mesmo tempo de BCrypt quando o e-mail não existe. */
     private final String hashFicticio;
@@ -41,13 +36,13 @@ public class AuthService {
             JwtService jwtService,
             RefreshTokenService refreshTokenService,
             TokenVerificacaoEmailService tokenVerificacaoEmailService,
-            EmailService emailService) {
+            VerificacaoEmailNotificador verificacaoNotificador) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.tokenVerificacaoEmailService = tokenVerificacaoEmailService;
-        this.emailService = emailService;
+        this.verificacaoNotificador = verificacaoNotificador;
         this.hashFicticio = passwordEncoder.encode("senha-ficticia-para-equalizar-tempo");
     }
 
@@ -95,7 +90,8 @@ public class AuthService {
 
     /**
      * Reenvio do e-mail de verificação. Resposta sempre genérica para o chamador:
-     * não revela se o e-mail existe nem se já foi verificado.
+     * não revela se o e-mail existe, se já foi verificado nem se caiu no intervalo mínimo entre envios.
+     * Emitir um novo token invalida o anterior; o e-mail só sai depois do commit.
      */
     @Transactional(noRollbackFor = ApiException.class)
     public void reenviarVerificacao(String emailInformado) {
@@ -103,14 +99,10 @@ public class AuthService {
 
         usuarioRepository.findByEmailIgnoreCase(email)
                 .filter(u -> u.isAtivo() && !u.isEmailVerificado())
+                .filter(u -> !tokenVerificacaoEmailService.emIntervaloDeReenvio(u.getId()))
                 .ifPresent(usuario -> {
                     String token = tokenVerificacaoEmailService.gerarToken(usuario);
-                    try {
-                        emailService.enviarVerificacao(usuario.getEmail(), token);
-                    } catch (MailException e) {
-                        log.error("Falha ao enviar e-mail de verificação (usuário id={}): {}",
-                                usuario.getId(), e.getMessage());
-                    }
+                    verificacaoNotificador.enviarAposCommit(usuario.getId(), usuario.getEmail(), token);
                 });
     }
 

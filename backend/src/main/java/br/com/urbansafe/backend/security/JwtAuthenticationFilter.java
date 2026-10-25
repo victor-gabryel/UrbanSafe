@@ -59,7 +59,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Integer usuarioId = jwtService.validarEExtrairUsuarioId(token);
                 Optional<Usuario> usuario = usuarioRepository.findComPerfilById(usuarioId);
 
-                if (usuario.isPresent() && usuario.get().isAtivo()) {
+                // Conta desativada ou com e-mail não verificado não acessa rotas protegidas, mesmo com JWT válido.
+                if (usuario.isPresent() && usuario.get().isAtivo() && usuario.get().isEmailVerificado()) {
                     autenticar(usuario.get(), request);
                 } else {
                     request.setAttribute(ATRIBUTO_MOTIVO, TokenJwtException.Motivo.INVALIDO);

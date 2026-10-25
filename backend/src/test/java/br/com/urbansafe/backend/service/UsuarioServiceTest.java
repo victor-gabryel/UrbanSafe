@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.MailSendException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -37,7 +36,7 @@ class UsuarioServiceTest {
 
     private UsuarioRepository usuarioRepository;
     private PerfilRepository perfilRepository;
-    private EmailService emailService;
+    private VerificacaoEmailNotificador notificador;
     private TokenVerificacaoEmailService tokenService;
     private RefreshTokenService refreshTokenService;
     private final PasswordEncoder encoder = new BCryptPasswordEncoder(4);
@@ -47,11 +46,11 @@ class UsuarioServiceTest {
     void preparar() {
         usuarioRepository = mock(UsuarioRepository.class);
         perfilRepository = mock(PerfilRepository.class);
-        emailService = mock(EmailService.class);
+        notificador = mock(VerificacaoEmailNotificador.class);
         tokenService = mock(TokenVerificacaoEmailService.class);
         refreshTokenService = mock(RefreshTokenService.class);
         service = new UsuarioService(usuarioRepository, perfilRepository, encoder,
-                emailService, tokenService, refreshTokenService);
+                notificador, tokenService, refreshTokenService);
     }
 
     private void prepararCadastroPossivel() {
@@ -81,7 +80,7 @@ class UsuarioServiceTest {
         assertTrue(salvo.getSenhaHash().startsWith("$2"));
         assertTrue(encoder.matches("SenhaForte123", salvo.getSenhaHash()));
         assertEquals("maria@exemplo.com", resposta.email());
-        verify(emailService).enviarVerificacao("maria@exemplo.com", "token-original");
+        verify(notificador).enviarAposCommit(any(), eq("maria@exemplo.com"), eq("token-original"));
     }
 
     @Test
@@ -106,15 +105,14 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void falhaNoSmtpNaoDesfazOCadastro() {
+    void cadastroEntregaOTokenAoNotificadorETokenNaoVaiNaResposta() {
         prepararCadastroPossivel();
-        doThrow(new MailSendException("smtp fora do ar"))
-                .when(emailService).enviarVerificacao(anyString(), anyString());
 
         CadastroResponse resposta = service.cadastrar(
                 new CadastroRequest("Maria", "maria@exemplo.com", "SenhaForte123"));
 
-        assertEquals("maria@exemplo.com", resposta.email());
+        assertFalse(resposta.toString().contains("token-original"));
+        verify(tokenService).gerarToken(any(Usuario.class));
     }
 
     @Test

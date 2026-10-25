@@ -19,14 +19,15 @@ public class EmailService {
     @Value("${app.password-reset.expiration-minutes}")
     private long expiracaoRecuperacaoMinutos;
 
+    @Value("${app.email-verification.expiration-hours:24}")
+    private long expiracaoVerificacaoHoras;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     public void enviarVerificacao(String email, String token) {
-        String link = urlFrontend
-                + "/verificar-email?token="
-                + token;
+        String link = montarLink("/verificar-email", token);
 
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
@@ -37,9 +38,9 @@ public class EmailService {
         mensagem.setText(
                 "Olá!\n\n"
                 + "Obrigado por se cadastrar no UrbanSafe.\n\n"
-                + "Para verificar seu e-mail, acesse o link abaixo:\n\n"
+                + "Para confirmar este e-mail e ativar sua conta, acesse o link abaixo:\n\n"
                 + link + "\n\n"
-                + "Este link expira em 24 horas.\n\n"
+                + "Este link expira em " + expiracaoVerificacaoHoras + " horas e só pode ser usado uma vez.\n\n"
                 + "Se você não solicitou este cadastro, ignore esta mensagem."
         );
 
@@ -47,9 +48,7 @@ public class EmailService {
     }
 
     public void enviarRecuperacaoSenha(String email, String token) {
-        String link = urlFrontend
-                + "/redefinir-senha?token="
-                + token;
+        String link = montarLink("/redefinir-senha", token);
 
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
@@ -67,5 +66,13 @@ public class EmailService {
         );
 
         mailSender.send(mensagem);
+    }
+
+    private String montarLink(String caminho, String token) {
+        String base = urlFrontend.endsWith("/")
+                ? urlFrontend.substring(0, urlFrontend.length() - 1)
+                : urlFrontend;
+
+        return base + caminho + "?token=" + token;
     }
 }

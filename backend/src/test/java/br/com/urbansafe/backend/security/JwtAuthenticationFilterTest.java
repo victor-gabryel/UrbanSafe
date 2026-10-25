@@ -93,4 +93,16 @@ class JwtAuthenticationFilterTest {
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
+
+    @Test
+    void emailNaoVerificadoComTokenValidoNaoAutentica() throws Exception {
+        Usuario usuario = Fixtures.usuario(3, "a@b.com", "USUARIO");
+        usuario.setEmailVerificado(false);
+        when(repository.findComPerfilById(3)).thenReturn(Optional.of(usuario));
+
+        filtro.doFilter(requisicaoComToken(jwtService.gerarAccessToken(usuario)),
+                new MockHttpServletResponse(), new MockFilterChain());
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
 }

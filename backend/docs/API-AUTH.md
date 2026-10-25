@@ -9,6 +9,8 @@ Todo erro segue o formato:
   "campos": [ { "campo": "email", "mensagem": "Informe um e-mail válido" } ] }
 ```
 
+Swagger UI: `http://localhost:8080/swagger-ui.html` · OpenAPI JSON: `/v3/api-docs` (desligue em produção com `SWAGGER_ENABLED=false`).
+
 ## Fluxo de teste (ordem)
 1. Cadastro → 2. Verificar e-mail (token chega por e-mail) → 3. Login → 4. `GET /api/auth/me` →
 5. `PATCH /api/usuarios/me` → 6. Refresh → 7. Logout → 8. Recuperar/redefinir senha → 9. `DELETE /api/usuarios/me`.
@@ -36,7 +38,11 @@ Qualquer campo `perfil` enviado é ignorado: o papel é sempre `USUARIO`.
 ```json
 { "email": "maria@exemplo.com" }
 ```
-**202** (sempre, exista ou não o e-mail): `{ "mensagem": "Se o e-mail estiver cadastrado e pendente de verificação, enviaremos um novo link." }`
+**202** (sempre, exista ou não o e-mail, esteja ou não verificado):
+`{ "mensagem": "Se o e-mail estiver cadastrado e pendente de verificação, enviaremos um novo link." }`
+**400** e-mail em formato inválido · **429** limite por IP excedido (padrão 5 pedidos/15 min).
+Cada conta só recebe um novo e-mail após o intervalo mínimo (padrão 60 s; dentro dele a resposta continua 202, sem e-mail).
+Emitir um novo link invalida o anterior (só existe um token pendente por conta). O link vale 24 h (configurável).
 
 ### 3. Login — `POST /api/auth/login` (público)
 ```json
@@ -97,4 +103,5 @@ Próprio id ou perfil `ADMINISTRADOR` → **200**; outro usuário sem ser admin 
 ---
 ## Não implementado (dependem de módulos que ainda não existem)
 `GET /api/usuarios/me/ocorrencias`, `GET /api/usuarios/me/rotas`, `GET|PATCH /api/usuarios/me/preferencias`:
-não há entidades/tabelas de ocorrências, rotas ou preferências no projeto (issues 4+ da épica #3).
+as tabelas `tipos_ocorrencia` e `ocorrencias` já existem (migration V3), mas ainda não há entidades/endpoints de
+ocorrências; rotas e preferências continuam sem tabela/módulo (issues 4+ da épica #3).

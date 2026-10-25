@@ -31,7 +31,7 @@ class AuthServiceTest {
     private UsuarioRepository usuarioRepository;
     private RefreshTokenService refreshTokenService;
     private TokenVerificacaoEmailService tokenVerificacaoService;
-    private EmailService emailService;
+    private VerificacaoEmailNotificador notificador;
     private final PasswordEncoder encoder = new BCryptPasswordEncoder(4);
     private final JwtService jwtService = new JwtService(Fixtures.SEGREDO, "urbansafe-teste", 15);
     private AuthService service;
@@ -42,9 +42,9 @@ class AuthServiceTest {
         usuarioRepository = mock(UsuarioRepository.class);
         refreshTokenService = mock(RefreshTokenService.class);
         tokenVerificacaoService = mock(TokenVerificacaoEmailService.class);
-        emailService = mock(EmailService.class);
+        notificador = mock(VerificacaoEmailNotificador.class);
         service = new AuthService(usuarioRepository, encoder, jwtService,
-                refreshTokenService, tokenVerificacaoService, emailService);
+                refreshTokenService, tokenVerificacaoService, notificador);
 
         usuario = Fixtures.usuario(1, "maria@exemplo.com", "USUARIO");
         usuario.setSenhaHash(encoder.encode("SenhaForte123"));
@@ -147,7 +147,8 @@ class AuthServiceTest {
 
         service.reenviarVerificacao("maria@exemplo.com");
 
-        verify(emailService, never()).enviarVerificacao(anyString(), anyString());
+        verify(tokenVerificacaoService, never()).gerarToken(any());
+        verify(notificador, never()).enviarAposCommit(any(), anyString(), anyString());
     }
 
     @Test
@@ -156,7 +157,19 @@ class AuthServiceTest {
 
         service.reenviarVerificacao("x@exemplo.com");
 
-        verify(emailService, never()).enviarVerificacao(anyString(), anyString());
+        verify(tokenVerificacaoService, never()).gerarToken(any());
+        verify(notificador, never()).enviarAposCommit(any(), anyString(), anyString());
+    }
+
+    @Test
+    void reenvioNaoEnviaParaContaDesativada() {
+        usuario.setEmailVerificado(false);
+        usuario.setAtivo(false);
+        when(usuarioRepository.findByEmailIgnoreCase("maria@exemplo.com")).thenReturn(Optional.of(usuario));
+
+        service.reenviarVerificacao("maria@exemplo.com");
+
+        verify(tokenVerificacaoService, never()).gerarToken(any());
     }
 
     @Test
@@ -167,6 +180,18 @@ class AuthServiceTest {
 
         service.reenviarVerificacao(" Maria@Exemplo.com ");
 
-        verify(emailService).enviarVerificacao("maria@exemplo.com", "tok");
+        verify(notificador).enviarAposCommit(1, "maria@exemplo.com", "tok");
+    }
+
+    @Test
+    void reenvioDentroDoIntervaloNaoEmiteNovoTokenNemEnviaEmail() {
+        usuario.setEmailVerificado(false);
+        when(usuarioRepository.findByEmailIgnoreCase("maria@exemplo.com")).thenReturn(Optional.of(usuario));
+        when(tokenVerificacaoService.emIntervaloDeReenvio(1)).thenReturn(true);
+
+        service.reenviarVerificacao("maria@exemplo.com");
+
+        verify(tokenVerificacaoService, never()).gerarToken(any());
+        verify(notificador, never()).enviarAposCommit(any(), anyString(), anyString());
     }
 }

@@ -2,9 +2,6 @@ package br.com.urbansafe.backend.service;
 
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +21,10 @@ import br.com.urbansafe.backend.util.SenhaValidator;
 @Service
 public class UsuarioService {
 
-        private static final Logger log = LoggerFactory.getLogger(UsuarioService.class);
-
         private final UsuarioRepository usuarioRepository;
         private final PerfilRepository perfilRepository;
         private final PasswordEncoder passwordEncoder;
-        private final EmailService emailService;
+        private final VerificacaoEmailNotificador verificacaoNotificador;
         private final TokenVerificacaoEmailService tokenVerificacaoEmailService;
         private final RefreshTokenService refreshTokenService;
 
@@ -37,14 +32,14 @@ public class UsuarioService {
                         UsuarioRepository usuarioRepository,
                         PerfilRepository perfilRepository,
                         PasswordEncoder passwordEncoder,
-                        EmailService emailService,
+                        VerificacaoEmailNotificador verificacaoNotificador,
                         TokenVerificacaoEmailService tokenVerificacaoEmailService,
                         RefreshTokenService refreshTokenService) {
 
                 this.usuarioRepository = usuarioRepository;
                 this.perfilRepository = perfilRepository;
                 this.passwordEncoder = passwordEncoder;
-                this.emailService = emailService;
+                this.verificacaoNotificador = verificacaoNotificador;
                 this.tokenVerificacaoEmailService = tokenVerificacaoEmailService;
                 this.refreshTokenService = refreshTokenService;
         }
@@ -79,16 +74,9 @@ public class UsuarioService {
 
                 String token = tokenVerificacaoEmailService.gerarToken(salvo);
 
-                // Falha de SMTP não pode desfazer o cadastro: o usuário pode pedir novo envio em
-                // POST /api/auth/reenviar-verificacao.
-                try {
-                        emailService.enviarVerificacao(
-                                        salvo.getEmail(),
-                                        token);
-                } catch (MailException e) {
-                        log.error("Falha ao enviar e-mail de verificação (usuário id={}): {}",
-                                        salvo.getId(), e.getMessage());
-                }
+                // O e-mail só sai depois do commit; falha de SMTP não desfaz o cadastro (o usuário usa
+                // POST /api/auth/reenviar-verificacao, que não cria conta duplicada).
+                verificacaoNotificador.enviarAposCommit(salvo.getId(), salvo.getEmail(), token);
 
                 return new CadastroResponse(
                                 salvo.getId(),

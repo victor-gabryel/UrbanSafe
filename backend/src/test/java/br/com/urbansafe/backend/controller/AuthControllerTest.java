@@ -1,11 +1,13 @@
 package br.com.urbansafe.backend.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import br.com.urbansafe.backend.exception.ApiException;
 import br.com.urbansafe.backend.exception.GlobalExceptionHandler;
 import br.com.urbansafe.backend.service.AuthService;
+import br.com.urbansafe.backend.service.LimitadorReenvioVerificacao;
 import br.com.urbansafe.backend.service.RecuperacaoSenhaService;
 import br.com.urbansafe.backend.service.TokenVerificacaoEmailService;
 import br.com.urbansafe.backend.service.UsuarioService;
@@ -28,6 +31,8 @@ class AuthControllerTest {
     private UsuarioService usuarioService;
     private AuthService authService;
     private RecuperacaoSenhaService recuperacaoSenhaService;
+    private TokenVerificacaoEmailService tokenService;
+    private LimitadorReenvioVerificacao limitador;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -35,9 +40,11 @@ class AuthControllerTest {
         usuarioService = mock(UsuarioService.class);
         authService = mock(AuthService.class);
         recuperacaoSenhaService = mock(RecuperacaoSenhaService.class);
+        tokenService = mock(TokenVerificacaoEmailService.class);
+        limitador = mock(LimitadorReenvioVerificacao.class);
 
         AuthController controller = new AuthController(usuarioService,
-                mock(TokenVerificacaoEmailService.class), authService, recuperacaoSenhaService);
+                tokenService, authService, recuperacaoSenhaService, limitador);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
@@ -97,6 +104,69 @@ class AuthControllerTest {
     @Test
     void loginSemCorpoRetorna400() throws Exception {
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void verificarEmailValidoRetorna200() throws Exception {
+        mockMvc.perform(post("/api/auth/verificar-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"abc\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("E-mail verificado com sucesso."));
+
+        verify(tokenService).verificarEmail("abc");
+    }
+
+    @Test
+    void verificarEmailComTokenInvalidoRetorna400() throws Exception {
+        doThrow(ApiException.badRequest("Token de verificação inválido.")).when(tokenService).verificarEmail("ruim");
+
+        mockMvc.perform(post("/api/auth/verificar-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"ruim\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value("Token de verificação inválido."));
+    }
+
+    @Test
+    void verificarEmailSemTokenRetorna400() throws Exception {
+        mockMvc.perform(post("/api/auth/verificar-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"\"}"))
+                .andExpect(status().isBadRequest());
+
+        verify(tokenService, never()).verificarEmail(any());
+    }
+
+    @Test
+    void reenvioResponde202ComMensagemGenerica() throws Exception {
+        mockMvc.perform(post("/api/auth/reenviar-verificacao")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"qualquer@exemplo.com\"}"))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.mensagem").exists());
+
+        verify(authService).reenviarVerificacao("qualquer@exemplo.com");
+    }
+
+    @Test
+    void reenvioAcimaDoLimiteRetorna429SemChamarOServico() throws Exception {
+        doThrow(ApiException.tooManyRequests("Muitas solicitações.")).when(limitador).registrar(any());
+
+        mockMvc.perform(post("/api/auth/reenviar-verificacao")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"qualquer@exemplo.com\"}"))
+                .andExpect(status().isTooManyRequests());
+
+        verify(authService, never()).reenviarVerificacao(any());
+    }
+
+    @Test
+    void reenvioComEmailInvalidoRetorna400() throws Exception {
+        mockMvc.perform(post("/api/auth/reenviar-verificacao")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"nao-e-email\"}"))
                 .andExpect(status().isBadRequest());
     }
 
