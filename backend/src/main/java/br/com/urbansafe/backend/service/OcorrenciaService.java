@@ -53,7 +53,6 @@ public class OcorrenciaService {
             HistoricoService historicoService,
             @Value("${app.ocorrencias.limite-maximo:100}") int limiteMaximo,
             @Value("${app.mapa.max-lado-bbox-graus:5.0}") double maxLadoBbox) {
-
         this.ocorrenciaRepository = ocorrenciaRepository;
         this.tipoRepository = tipoRepository;
         this.consultaRepository = consultaRepository;
@@ -95,7 +94,6 @@ public class OcorrenciaService {
     public PaginaResponse<OcorrenciaResponse> listar(UsuarioPrincipal principal, String bbox, Integer tipoId,
             OffsetDateTime dataInicio, OffsetDateTime dataFim, StatusOcorrencia status, boolean apenasMinhas,
             int pagina, int limite) {
-
         if (pagina < 1) {
             throw ApiException.badRequest("O parâmetro page deve ser maior ou igual a 1.");
         }

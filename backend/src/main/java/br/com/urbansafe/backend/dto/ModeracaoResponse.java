@@ -1,6 +1,7 @@
 package br.com.urbansafe.backend.dto;
 
 import java.time.OffsetDateTime;
+
 import br.com.urbansafe.backend.entity.AcaoModeracao;
 import br.com.urbansafe.backend.entity.Moderacao;
 import br.com.urbansafe.backend.entity.StatusOcorrencia;

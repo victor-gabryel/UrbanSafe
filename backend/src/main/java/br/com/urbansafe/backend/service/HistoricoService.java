@@ -32,7 +32,6 @@ public class HistoricoService {
     @Transactional
     public void registrar(Integer ocorrenciaId, Integer usuarioId, AcaoHistorico acao,
             StatusOcorrencia statusAnterior, StatusOcorrencia statusNovo, String descricao) {
-
         historicoRepository.save(new HistoricoOcorrencia(
                 ocorrenciaId, usuarioId, acao, statusAnterior, statusNovo, descricao));
     }

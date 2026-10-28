@@ -67,7 +67,6 @@ public class TipoOcorrenciaService {
     @Transactional
     public TipoOcorrenciaResponse atualizar(UsuarioPrincipal principal, Integer id,
             AtualizarTipoOcorrenciaRequest request) {
-
         exigirAdministrador(principal);
         if (request.vazio()) {
             throw ApiException.badRequest("Informe ao menos um campo para atualizar.");

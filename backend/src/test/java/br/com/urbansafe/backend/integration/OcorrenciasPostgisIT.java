@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.UUID;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -26,8 +27,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import com.jayway.jsonpath.JsonPath;
 
 import br.com.urbansafe.backend.entity.Usuario;
 import br.com.urbansafe.backend.repository.PerfilRepository;
@@ -55,7 +54,6 @@ import br.com.urbansafe.backend.security.JwtService;
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OcorrenciasPostgisIT {
-
     // Região isolada (longitude 100.1, latitude 50.1) para não colidir com dados existentes.
     private static final String BBOX = "100.0,50.0,100.2,50.2";
     private static final byte[] PNG = { (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0 };

@@ -42,7 +42,6 @@ public class MapaService {
             @Value("${app.mapa.calor.celula-min-graus:0.0005}") double celulaMin,
             @Value("${app.mapa.calor.celula-max-graus:0.05}") double celulaMax,
             @Value("${app.mapa.calor.celula-padrao-graus:0.005}") double celulaPadrao) {
-
         this.consultaRepository = consultaRepository;
         this.maxMarcadores = maxMarcadores;
         this.maxLadoBbox = maxLadoBbox;
@@ -55,7 +54,6 @@ public class MapaService {
     @Transactional(readOnly = true)
     public MapaOcorrenciasResponse ocorrencias(UsuarioPrincipal principal, String bbox, Integer tipoId,
             OffsetDateTime dataInicio, OffsetDateTime dataFim, StatusOcorrencia status, Integer limite) {
-
         int limiteEfetivo = limite == null ? maxMarcadores : limite;
         if (limiteEfetivo < 1 || limiteEfetivo > maxMarcadores) {
             throw ApiException.badRequest("O parâmetro limit deve estar entre 1 e " + maxMarcadores + ".");
@@ -77,7 +75,6 @@ public class MapaService {
     @Transactional(readOnly = true)
     public MapaCalorResponse calor(UsuarioPrincipal principal, String bbox, Integer tipoId,
             OffsetDateTime dataInicio, OffsetDateTime dataFim, StatusOcorrencia status, Double celula) {
-
         double celulaEfetiva = celula == null ? celulaPadrao : celula;
         if (!Double.isFinite(celulaEfetiva) || celulaEfetiva < celulaMin || celulaEfetiva > celulaMax) {
             throw ApiException.badRequest(
@@ -106,7 +103,6 @@ public class MapaService {
 
     private FiltroOcorrencia filtro(UsuarioPrincipal principal, String bbox, Integer tipoId,
             OffsetDateTime dataInicio, OffsetDateTime dataFim, StatusOcorrencia status) {
-
         // Usuário comum só vê dados públicos (PUBLICADA); pedir outro status é falta de permissão, não filtro vazio.
         if (status != null && status != StatusOcorrencia.PUBLICADA && !principal.isEquipe()) {
             throw ApiException.forbidden("Você não tem permissão para filtrar o mapa por este status.");

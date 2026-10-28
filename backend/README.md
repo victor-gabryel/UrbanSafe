@@ -197,3 +197,28 @@ $env:URBANSAFE_IT_DB_USER="urbansafe"; $env:URBANSAFE_IT_DB_PASSWORD="sua-senha"
 Sem varredura antivírus de arquivos; armazenamento local em disco por padrão; gestão de usuários limitada à troca de perfil
 (listar/bloquear usuários e demais rotas `/api/admin/**` do documento ficam para etapas futuras); denúncias, confirmações, rotas,
 favoritos e notificações (listados no documento) não fazem parte da issue #3.
+
+## Padrão de código
+
+Todo o código Java segue um único padrão, definido em `.editorconfig` e verificado por `config/checkstyle.xml`:
+
+- UTF-8, fim de linha **LF**, uma quebra de linha no fim do arquivo, sem espaços no fim das linhas.
+- Indentação de **4 espaços** (sem tabs; no `pom.xml` o padrão do Maven Initializr, com tabs, é mantido).
+- Imports em quatro blocos, separados por uma linha em branco e em ordem alfabética dentro de cada bloco:
+  1. `import static ...`
+  2. `java.*` e `javax.*`
+  3. bibliotecas de terceiros (`jakarta.*`, `org.*`, `io.*`, ...)
+  4. `br.com.urbansafe.*`
+- Sem `import` com `*`, duplicado ou não utilizado.
+
+Para aplicar o padrão automaticamente (só precisa de Python 3.9+) e para apenas verificar:
+
+```bash
+python scripts/padronizar_java.py           # corrige os arquivos
+python scripts/padronizar_java.py --check   # só verifica (sai com código 1 se algo mudaria)
+./mvnw checkstyle:check                     # mesma checagem, via Maven
+```
+
+O `checkstyle:check` também roda na fase `verify` (`./mvnw verify`), depois dos testes; não afeta `spring-boot:run`,
+`mvn test` nem o `Dockerfile`. As migrations em `src/main/resources/db/migration` **não** são reformatadas de propósito:
+depois de aplicadas, o Flyway valida o checksum de cada uma.

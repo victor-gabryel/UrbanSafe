@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Regras de padronização do código Java do backend UrbanSafe.
+  Foco: organização dos imports e higiene de formatação (sem regras de estilo
+  que exijam refatorar código existente).
+
+  Para aplicar as correções automaticamente: python scripts/padronizar_java.py
+  Para só verificar:                          ./mvnw checkstyle:check
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Arquivo termina com exatamente um fim de linha LF. -->
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf"/>
+    </module>
+
+    <!-- Sem tabs: indentação é feita com 4 espaços. -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- Sem espaços no fim das linhas. -->
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Espaço em branco no fim da linha."/>
+    </module>
+
+    <module name="TreeWalker">
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="true"/>
+        </module>
+
+        <!--
+          Ordem dos imports, em blocos separados por uma linha em branco:
+            1. import static ...
+            2. java.* e javax.*
+            3. bibliotecas de terceiros (jakarta.*, org.*, io.*, ...)
+            4. br.com.urbansafe.*
+          Cada bloco em ordem alfabética (ASCII).
+        -->
+        <module name="CustomImportOrder">
+            <property name="customImportOrderRules"
+                      value="STATIC###STANDARD_JAVA_PACKAGE###THIRD_PARTY_PACKAGE###SPECIAL_IMPORTS"/>
+            <property name="standardPackageRegExp" value="^(java|javax)\."/>
+            <property name="specialImportsRegExp" value="^br\.com\.urbansafe\."/>
+            <property name="separateLineBetweenGroups" value="true"/>
+            <property name="sortImportsInGroupAlphabetically" value="true"/>
+        </module>
+    </module>
+</module>

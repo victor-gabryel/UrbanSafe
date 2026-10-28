@@ -2,10 +2,12 @@ package br.com.urbansafe.backend.dto;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import br.com.urbansafe.backend.entity.Ocorrencia;
 import br.com.urbansafe.backend.entity.Relevancia;
 import br.com.urbansafe.backend.entity.StatusOcorrencia;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Ocorrência. 'autorId' só é preenchido para o próprio autor, GESTOR e ADMINISTRADOR.")
 public record OcorrenciaResponse(

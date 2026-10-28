@@ -3,6 +3,11 @@ package br.com.urbansafe.backend.controller;
 import java.net.URI;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,11 +25,6 @@ import br.com.urbansafe.backend.dto.CriarTipoOcorrenciaRequest;
 import br.com.urbansafe.backend.dto.TipoOcorrenciaResponse;
 import br.com.urbansafe.backend.security.UsuarioPrincipal;
 import br.com.urbansafe.backend.service.TipoOcorrenciaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tipos-ocorrencia")
@@ -39,8 +39,7 @@ public class TipoOcorrenciaController {
         this.service = service;
     }
 
-    @Operation(summary = "Listar tipos ativos",
-            description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Retorna somente tipos ativos, ordenados por nome.")
+    @Operation(summary = "Listar tipos ativos", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Retorna somente tipos ativos, ordenados por nome.")
     @ApiResponse(responseCode = "200", description = "Lista de tipos ativos")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @GetMapping
@@ -48,8 +47,7 @@ public class TipoOcorrenciaController {
         return ResponseEntity.ok(service.listarAtivos());
     }
 
-    @Operation(summary = "Consultar tipo por id",
-            description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Tipos inativos só são visíveis ao ADMINISTRADOR (404 para os demais).")
+    @Operation(summary = "Consultar tipo por id", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Tipos inativos só são visíveis ao ADMINISTRADOR (404 para os demais).")
     @ApiResponse(responseCode = "200", description = "Tipo")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "404", description = "Tipo não encontrado")
@@ -69,13 +67,11 @@ public class TipoOcorrenciaController {
     public ResponseEntity<TipoOcorrenciaResponse> criar(
             @AuthenticationPrincipal UsuarioPrincipal principal,
             @Valid @RequestBody CriarTipoOcorrenciaRequest request) {
-
         TipoOcorrenciaResponse criado = service.criar(principal, request);
         return ResponseEntity.created(URI.create("/api/tipos-ocorrencia/" + criado.id())).body(criado);
     }
 
-    @Operation(summary = "Atualizar tipo parcialmente",
-            description = "Perfil: ADMINISTRADOR. Campos ausentes não são alterados. 'ativo=true' reativa o tipo.")
+    @Operation(summary = "Atualizar tipo parcialmente", description = "Perfil: ADMINISTRADOR. Campos ausentes não são alterados. 'ativo=true' reativa o tipo.")
     @ApiResponse(responseCode = "200", description = "Tipo atualizado")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
@@ -86,12 +82,10 @@ public class TipoOcorrenciaController {
     public ResponseEntity<TipoOcorrenciaResponse> atualizar(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer id,
             @Valid @RequestBody AtualizarTipoOcorrenciaRequest request) {
-
         return ResponseEntity.ok(service.atualizar(principal, id, request));
     }
 
-    @Operation(summary = "Desativar tipo (exclusão lógica)",
-            description = "Perfil: ADMINISTRADOR. Não apaga o tipo nem afeta ocorrências já cadastradas.")
+    @Operation(summary = "Desativar tipo (exclusão lógica)", description = "Perfil: ADMINISTRADOR. Não apaga o tipo nem afeta ocorrências já cadastradas.")
     @ApiResponse(responseCode = "204", description = "Tipo desativado")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "403", description = "Sem permissão (exige ADMINISTRADOR)")
@@ -99,7 +93,6 @@ public class TipoOcorrenciaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> desativar(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer id) {
-
         service.desativar(principal, id);
         return ResponseEntity.noContent().build();
     }

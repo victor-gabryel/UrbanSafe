@@ -2,6 +2,11 @@ package br.com.urbansafe.backend.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,11 +22,6 @@ import br.com.urbansafe.backend.dto.ModeracaoResponse;
 import br.com.urbansafe.backend.dto.ModerarRequest;
 import br.com.urbansafe.backend.security.UsuarioPrincipal;
 import br.com.urbansafe.backend.service.ModeracaoService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/ocorrencias/{id}/moderacao")
@@ -50,7 +50,6 @@ public class ModeracaoController {
     public ResponseEntity<ModeracaoResponse> moderar(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer id,
             @Valid @RequestBody ModerarRequest request) {
-
         return ResponseEntity.status(HttpStatus.CREATED).body(moderacaoService.moderar(principal, id, request));
     }
 

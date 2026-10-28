@@ -50,7 +50,6 @@ public class MidiaService {
             @Value("${app.midias.max-bytes-video:52428800}") long maxBytesVideo,
             @Value("${app.midias.max-bytes-audio:10485760}") long maxBytesAudio,
             @Value("${app.midias.max-bytes-documento:10485760}") long maxBytesDocumento) {
-
         this.acesso = acesso;
         this.midiaRepository = midiaRepository;
         this.armazenamento = armazenamento;
@@ -75,7 +74,6 @@ public class MidiaService {
     @Transactional
     public MidiaResponse adicionar(UsuarioPrincipal principal, Integer ocorrenciaId, MultipartFile arquivo,
             String descricao) {
-
         Ocorrencia ocorrencia = acesso.carregarVisivel(principal, ocorrenciaId);
 
         if (!acesso.ehAutor(principal, ocorrencia)) {

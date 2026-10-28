@@ -1,9 +1,11 @@
 package br.com.urbansafe.backend.dto;
 
 import java.time.OffsetDateTime;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import br.com.urbansafe.backend.entity.MidiaOcorrencia;
 import br.com.urbansafe.backend.entity.TipoMidia;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Metadados da mídia. O arquivo é obtido pela rota autenticada 'arquivoUrl'; a chave interna do armazenamento nunca é exposta.")
 public record MidiaResponse(

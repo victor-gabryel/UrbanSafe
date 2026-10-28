@@ -1,0 +1,38 @@
+# Padrão de formatação do projeto (https://editorconfig.org).
+# IntelliJ e VS Code (extensão EditorConfig) respeitam este arquivo ao salvar.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.java]
+# IntelliJ: ordem dos imports igual à do checkstyle (config/checkstyle.xml) e do
+# scripts/padronizar_java.py: static, java/javax, terceiros, br.com.urbansafe.
+ij_java_imports_layout = $*,|,java.**,javax.**,|,*,|,br.com.urbansafe.**
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_import_on_demand = 999
+
+# O Maven Initializr gera o pom.xml com tabs.
+[pom.xml]
+indent_style = tab
+
+[*.{yml,yaml}]
+indent_size = 2
+
+# Em .properties e .md o espaço no fim da linha pode ter significado.
+[*.{properties,md}]
+trim_trailing_whitespace = false
+
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# Migrations do Flyway são imutáveis depois de aplicadas (checksum): não reformatar.
+[src/main/resources/db/migration/*.sql]
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = false

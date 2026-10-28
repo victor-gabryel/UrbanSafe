@@ -6,7 +6,10 @@ import br.com.urbansafe.backend.dto.FiltroOcorrencia;
 import br.com.urbansafe.backend.entity.StatusOcorrencia;
 import br.com.urbansafe.backend.exception.ApiException;
 
-/** Montagem e validação dos filtros compartilhados por /api/ocorrencias e /api/mapa/**. */
+/**
+ * Montagem e validação dos filtros compartilhados por /api/ocorrencias e
+ * /api/mapa/**.
+ */
 public final class Filtros {
 
     private Filtros() {
@@ -14,7 +17,6 @@ public final class Filtros {
 
     public static FiltroOcorrencia montar(String bbox, double maxLadoBbox, boolean bboxObrigatorio, Integer tipoId,
             OffsetDateTime dataInicio, OffsetDateTime dataFim, StatusOcorrencia status, boolean apenasMinhas) {
-
         BoundingBox caixa = null;
         if (bbox != null && !bbox.isBlank()) {
             caixa = BoundingBox.parse(bbox, maxLadoBbox);

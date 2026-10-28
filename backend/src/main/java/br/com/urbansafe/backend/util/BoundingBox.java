@@ -3,8 +3,10 @@ package br.com.urbansafe.backend.util;
 import br.com.urbansafe.backend.exception.ApiException;
 
 /**
- * Área retangular do mapa. Formato do parâmetro: {@code minLon,minLat,maxLon,maxLat} (graus decimais,
- * ordem PostGIS: longitude antes de latitude). Não há suporte a áreas que cruzam o antimeridiano (180°).
+ * Área retangular do mapa. Formato do parâmetro:
+ * {@code minLon,minLat,maxLon,maxLat} (graus decimais,
+ * ordem PostGIS: longitude antes de latitude). Não há suporte a áreas que
+ * cruzam o antimeridiano (180°).
  */
 public record BoundingBox(double minLon, double minLat, double maxLon, double maxLat) {
 

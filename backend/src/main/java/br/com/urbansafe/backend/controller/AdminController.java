@@ -1,5 +1,10 @@
 package br.com.urbansafe.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +24,6 @@ import br.com.urbansafe.backend.exception.ApiException;
 import br.com.urbansafe.backend.security.UsuarioPrincipal;
 import br.com.urbansafe.backend.service.AdministracaoService;
 import br.com.urbansafe.backend.service.AuditoriaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -39,9 +39,8 @@ public class AdminController {
         this.auditoriaService = auditoriaService;
     }
 
-    @Operation(summary = "Alterar o perfil de um usuário",
-            description = "Perfil: ADMINISTRADOR. Perfis possíveis: USUARIO (usuário comum), GESTOR, ADMINISTRADOR. "
-                    + "Não é possível alterar o próprio perfil. A operação é registrada na auditoria.")
+    @Operation(summary = "Alterar o perfil de um usuário", description = "Perfil: ADMINISTRADOR. Perfis possíveis: USUARIO (usuário comum), GESTOR, ADMINISTRADOR. "
+            + "Não é possível alterar o próprio perfil. A operação é registrada na auditoria.")
     @ApiResponse(responseCode = "200", description = "Perfil alterado")
     @ApiResponse(responseCode = "400", description = "Perfil inválido")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
@@ -51,12 +50,10 @@ public class AdminController {
     public ResponseEntity<UsuarioResponse> alterarPerfil(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer id,
             @Valid @RequestBody AlterarPerfilRequest request) {
-
         return ResponseEntity.ok(administracaoService.alterarPerfil(principal, id, request));
     }
 
-    @Operation(summary = "Consultar a auditoria administrativa",
-            description = "Perfil: ADMINISTRADOR. Registros imutáveis (mudança de perfil, gestão de tipos), mais recentes primeiro.")
+    @Operation(summary = "Consultar a auditoria administrativa", description = "Perfil: ADMINISTRADOR. Registros imutáveis (mudança de perfil, gestão de tipos), mais recentes primeiro.")
     @ApiResponse(responseCode = "200", description = "Página de registros")
     @ApiResponse(responseCode = "400", description = "Paginação inválida")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
@@ -66,8 +63,8 @@ public class AdminController {
             @AuthenticationPrincipal UsuarioPrincipal principal,
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "limit", defaultValue = "20") int limit) {
-
-        // Defesa em profundidade: a SecurityConfig já restringe /api/admin/** ao ADMINISTRADOR.
+        // Defesa em profundidade: a SecurityConfig já restringe /api/admin/** ao
+        // ADMINISTRADOR.
         if (principal == null || !principal.isAdministrador()) {
             throw ApiException.forbidden("Somente ADMINISTRADOR pode consultar a auditoria.");
         }

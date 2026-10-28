@@ -43,7 +43,6 @@ public class AdministracaoService {
     @Transactional
     public UsuarioResponse alterarPerfil(UsuarioPrincipal administrador, Integer usuarioId,
             AlterarPerfilRequest request) {
-
         if (administrador == null || !administrador.isAdministrador()) {
             throw ApiException.forbidden("Somente ADMINISTRADOR pode alterar perfis de usuários.");
         }

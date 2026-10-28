@@ -1,2 +1,8 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+
+# Código-fonte e build: sempre LF (ver .editorconfig).
+# Migrations *.sql ficam de fora de propósito: são imutáveis (checksum do Flyway).
+*.java text eol=lf
+*.xml text eol=lf
+*.properties text eol=lf

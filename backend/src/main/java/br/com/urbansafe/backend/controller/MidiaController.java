@@ -3,6 +3,11 @@ package br.com.urbansafe.backend.controller;
 import java.net.URI;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -25,11 +30,6 @@ import br.com.urbansafe.backend.entity.MidiaOcorrencia;
 import br.com.urbansafe.backend.entity.TipoMidia;
 import br.com.urbansafe.backend.security.UsuarioPrincipal;
 import br.com.urbansafe.backend.service.MidiaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/ocorrencias/{ocorrenciaId}/midias")
@@ -38,15 +38,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
         + "ocorrência. Limites configuráveis por variáveis de ambiente.")
 @SecurityRequirement(name = OpenApiConfig.ESQUEMA_BEARER)
 public class MidiaController {
-
     private final MidiaService midiaService;
 
     public MidiaController(MidiaService midiaService) {
         this.midiaService = midiaService;
     }
 
-    @Operation(summary = "Listar mídias da ocorrência",
-            description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR, conforme a visibilidade da ocorrência. Mídias removidas não aparecem.")
+    @Operation(summary = "Listar mídias da ocorrência", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR, conforme a visibilidade da ocorrência. Mídias removidas não aparecem.")
     @ApiResponse(responseCode = "200", description = "Mídias")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "404", description = "Ocorrência não encontrada (ou não visível)")
@@ -56,9 +54,8 @@ public class MidiaController {
         return ResponseEntity.ok(midiaService.listar(principal, ocorrenciaId));
     }
 
-    @Operation(summary = "Adicionar mídia (multipart/form-data)",
-            description = "Perfil: somente o autor da ocorrência, enquanto PENDENTE. Parte 'arquivo' (obrigatória) e campo "
-                    + "opcional 'descricao'. O tipo real do arquivo é verificado pelo conteúdo.")
+    @Operation(summary = "Adicionar mídia (multipart/form-data)", description = "Perfil: somente o autor da ocorrência, enquanto PENDENTE. Parte 'arquivo' (obrigatória) e campo "
+            + "opcional 'descricao'. O tipo real do arquivo é verificado pelo conteúdo.")
     @ApiResponse(responseCode = "201", description = "Mídia adicionada")
     @ApiResponse(responseCode = "400", description = "Arquivo ausente/vazio ou descrição inválida")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
@@ -71,17 +68,14 @@ public class MidiaController {
     public ResponseEntity<MidiaResponse> adicionar(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer ocorrenciaId,
             @RequestPart("arquivo") MultipartFile arquivo,
-            @Parameter(description = "Descrição opcional (até 500 caracteres)")
-            @RequestParam(name = "descricao", required = false) String descricao) {
-
+            @Parameter(description = "Descrição opcional (até 500 caracteres)") @RequestParam(name = "descricao", required = false) String descricao) {
         MidiaResponse criada = midiaService.adicionar(principal, ocorrenciaId, arquivo, descricao);
         return ResponseEntity
                 .created(URI.create("/api/ocorrencias/" + ocorrenciaId + "/midias/" + criada.id()))
                 .body(criada);
     }
 
-    @Operation(summary = "Remover mídia (remoção lógica)",
-            description = "Perfis: autor enquanto a ocorrência está PENDENTE; GESTOR e ADMINISTRADOR em qualquer status.")
+    @Operation(summary = "Remover mídia (remoção lógica)", description = "Perfis: autor enquanto a ocorrência está PENDENTE; GESTOR e ADMINISTRADOR em qualquer status.")
     @ApiResponse(responseCode = "204", description = "Mídia removida")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "403", description = "Sem permissão")
@@ -91,14 +85,12 @@ public class MidiaController {
     public ResponseEntity<Void> remover(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer ocorrenciaId,
             @PathVariable Integer midiaId) {
-
         midiaService.remover(principal, ocorrenciaId, midiaId);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Baixar o arquivo da mídia",
-            description = "Perfis: conforme a visibilidade da ocorrência. Acesso controlado (JWT): os arquivos não são "
-                    + "servidos por URL pública. Resposta com X-Content-Type-Options: nosniff.")
+    @Operation(summary = "Baixar o arquivo da mídia", description = "Perfis: conforme a visibilidade da ocorrência. Acesso controlado (JWT): os arquivos não são "
+            + "servidos por URL pública. Resposta com X-Content-Type-Options: nosniff.")
     @ApiResponse(responseCode = "200", description = "Conteúdo do arquivo")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "404", description = "Ocorrência, mídia ou arquivo não encontrado")
@@ -106,7 +98,6 @@ public class MidiaController {
     public ResponseEntity<Resource> baixar(
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer ocorrenciaId,
             @PathVariable Integer midiaId) {
-
         MidiaService.ArquivoMidia arquivo = midiaService.baixar(principal, ocorrenciaId, midiaId);
         MidiaOcorrencia midia = arquivo.midia();
 
