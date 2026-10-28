@@ -41,6 +41,9 @@ services:
       JWT_ISSUER: ${JWT_ISSUER:-urbansafe-backend}
       JWT_ACCESS_EXPIRATION_MINUTES: ${JWT_ACCESS_EXPIRATION_MINUTES:-15}
       JWT_REFRESH_EXPIRATION_DAYS: ${JWT_REFRESH_EXPIRATION_DAYS:-7}
+      STORAGE_PATH: /app/storage
+    volumes:
+      - uploads_data:/app/storage
     ports:
       - "${SERVER_PORT:-8080}:8080"
     depends_on:
@@ -49,3 +52,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
