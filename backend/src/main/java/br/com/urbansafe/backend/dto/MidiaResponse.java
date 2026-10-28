@@ -1,7 +1,6 @@
 package br.com.urbansafe.backend.dto;
 
 import java.time.OffsetDateTime;
-
 import br.com.urbansafe.backend.entity.MidiaOcorrencia;
 import br.com.urbansafe.backend.entity.TipoMidia;
 import io.swagger.v3.oas.annotations.media.Schema;

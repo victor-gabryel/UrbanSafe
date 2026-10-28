@@ -1,29 +1,56 @@
 package br.com.urbansafe.backend.config;
 
+
+
 import java.util.List;
+
+
+
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.http.HttpMethod;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.web.SecurityFilterChain;
+
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
+
 import org.springframework.web.cors.CorsConfigurationSource;
+
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
+
 import br.com.urbansafe.backend.repository.UsuarioRepository;
+
 import br.com.urbansafe.backend.security.JwtAuthenticationFilter;
+
 import br.com.urbansafe.backend.security.JwtService;
+
 import br.com.urbansafe.backend.security.RestAccessDeniedHandler;
+
 import br.com.urbansafe.backend.security.RestAuthenticationEntryPoint;
+
+
 
 @Configuration
 
 @EnableWebSecurity
 
 public class SecurityConfig {
+
+
 
         @Bean
 
@@ -40,6 +67,8 @@ public class SecurityConfig {
                         RestAccessDeniedHandler accessDeniedHandler,
 
                         CorsConfigurationSource corsConfigurationSource) throws Exception {
+
+
 
                 http
 
@@ -101,8 +130,7 @@ public class SecurityConfig {
 
                                                 .permitAll()
 
-                                                // Tipos de ocorrência: leitura para qualquer autenticado; escrita só
-                                                // ADMINISTRADOR.
+                                                // Tipos de ocorrência: leitura para qualquer autenticado; escrita só ADMINISTRADOR.
 
                                                 .requestMatchers(HttpMethod.POST, "/api/tipos-ocorrencia")
 
@@ -128,8 +156,7 @@ public class SecurityConfig {
 
                                                 .hasRole("ADMINISTRADOR")
 
-                                                // Demais rotas (ocorrências, mídias, mapa, usuários): JWT válido; a
-                                                // propriedade
+                                                // Demais rotas (ocorrências, mídias, mapa, usuários): JWT válido; a propriedade
 
                                                 // e a visibilidade dos registros são validadas nos serviços.
 
@@ -141,17 +168,20 @@ public class SecurityConfig {
 
                                                 UsernamePasswordAuthenticationFilter.class);
 
+
+
                 return http.build();
 
         }
 
+
+
         /**
-         * 
-         * CORS restrito à origem do front-end configurada em app.frontend.url
-         * (FRONTEND_URL).
-         * 
+
+         * CORS restrito à origem do front-end configurada em app.frontend.url (FRONTEND_URL).
+
          * Sem cookies/credenciais: a autenticação é por header Authorization.
-         * 
+
          */
 
         @Bean
@@ -159,6 +189,8 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource(
 
                         @Value("${app.frontend.url}") String frontendUrl) {
+
+
 
                 CorsConfiguration configuracao = new CorsConfiguration();
 
@@ -172,6 +204,8 @@ public class SecurityConfig {
 
                 configuracao.setMaxAge(3600L);
 
+
+
                 UrlBasedCorsConfigurationSource fonte = new UrlBasedCorsConfigurationSource();
 
                 fonte.registerCorsConfiguration("/api/**", configuracao);
@@ -180,4 +214,7 @@ public class SecurityConfig {
 
         }
 
+
+
 }
+

@@ -2,7 +2,6 @@ package br.com.urbansafe.backend.dto;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-
 import br.com.urbansafe.backend.entity.Ocorrencia;
 import br.com.urbansafe.backend.entity.Relevancia;
 import br.com.urbansafe.backend.entity.StatusOcorrencia;
@@ -23,8 +22,7 @@ public record OcorrenciaResponse(
         StatusOcorrencia status,
         Relevancia relevancia,
         boolean anonimato,
-        @Schema(description = "Id do autor; nulo para quem não é o autor nem GESTOR/ADMINISTRADOR", nullable = true)
-        Integer autorId) {
+        @Schema(description = "Id do autor; nulo para quem não é o autor nem GESTOR/ADMINISTRADOR", nullable = true) Integer autorId) {
 
     public record TipoResumo(Integer id, String nome, String categoria) {
     }
