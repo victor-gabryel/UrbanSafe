@@ -57,16 +57,20 @@ class TipoOcorrenciaServiceTest {
         var editar = new AtualizarTipoOcorrenciaRequest("X", null, null, null, null);
 
         for (UsuarioPrincipal p : new UsuarioPrincipal[] { USUARIO, GESTOR }) {
-            assertEquals(HttpStatus.FORBIDDEN, assertThrows(ApiException.class, () -> service.criar(p, criar)).getStatus());
-            assertEquals(HttpStatus.FORBIDDEN, assertThrows(ApiException.class, () -> service.atualizar(p, 4, editar)).getStatus());
-            assertEquals(HttpStatus.FORBIDDEN, assertThrows(ApiException.class, () -> service.desativar(p, 4)).getStatus());
+            assertEquals(HttpStatus.FORBIDDEN,
+                    assertThrows(ApiException.class, () -> service.criar(p, criar)).getStatus());
+            assertEquals(HttpStatus.FORBIDDEN,
+                    assertThrows(ApiException.class, () -> service.atualizar(p, 4, editar)).getStatus());
+            assertEquals(HttpStatus.FORBIDDEN,
+                    assertThrows(ApiException.class, () -> service.desativar(p, 4)).getStatus());
         }
         verify(repository, never()).save(any());
     }
 
     @Test
     void criaComPadroesEEvitaNomeDuplicadoSemDiferenciarCaixa() {
-        TipoOcorrenciaResponse r = service.criar(ADMIN, new CriarTipoOcorrenciaRequest(" Vandalismo ", " ", null, null));
+        TipoOcorrenciaResponse r = service.criar(ADMIN,
+                new CriarTipoOcorrenciaRequest(" Vandalismo ", " ", null, null));
         assertEquals("Vandalismo", r.nome());
         assertTrue(r.ativo());
         assertTrue(r.exigeRevisao());
@@ -115,7 +119,8 @@ class TipoOcorrenciaServiceTest {
     void tipoInativoSoApareceParaAdministrador() {
         existente.setAtivo(false);
 
-        assertEquals(HttpStatus.NOT_FOUND, assertThrows(ApiException.class, () -> service.buscar(USUARIO, 4)).getStatus());
+        assertEquals(HttpStatus.NOT_FOUND,
+                assertThrows(ApiException.class, () -> service.buscar(USUARIO, 4)).getStatus());
         assertFalse(service.buscar(ADMIN, 4).ativo());
     }
 }

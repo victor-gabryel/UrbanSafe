@@ -191,7 +191,8 @@ class TokenVerificacaoEmailServiceTest {
 
     @Test
     void consumoConcorrenteQuePerdeAEscritaNaoAtivaOEmail() {
-        // Duas requisições leem o token como pendente; o UPDATE condicional só vale para a primeira.
+        // Duas requisições leem o token como pendente; o UPDATE condicional só vale
+        // para a primeira.
         TokenVerificacaoEmail t = tokenPendente("corrida", OffsetDateTime.now(ZoneOffset.UTC).plusHours(1));
         when(tokenRepository.consumir(eq(t.getTokenHash()), any())).thenReturn(0);
 
@@ -216,7 +217,8 @@ class TokenVerificacaoEmailServiceTest {
 
     @Test
     void tokenDeRecuperacaoDeSenhaNaoEAceitoPorqueSoExisteNaOutraTabela() {
-        // O repositório de verificação só enxerga tokens_verificacao_email; um token de outro fluxo não é achado.
+        // O repositório de verificação só enxerga tokens_verificacao_email; um token de
+        // outro fluxo não é achado.
         when(tokenRepository.findByTokenHash(TokenUtils.sha256Hex("token-de-recuperacao")))
                 .thenReturn(Optional.empty());
 

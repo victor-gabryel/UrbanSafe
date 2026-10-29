@@ -15,8 +15,8 @@ import br.com.urbansafe.backend.exception.ApiException;
 class LimitadorReenvioVerificacaoTest {
 
     private final AtomicLong agora = new AtomicLong(0);
-    private final LimitadorReenvioVerificacao limitador =
-            new LimitadorReenvioVerificacao(3, Duration.ofMinutes(10), agora::get);
+    private final LimitadorReenvioVerificacao limitador = new LimitadorReenvioVerificacao(3, Duration.ofMinutes(10),
+            agora::get);
 
     @Test
     void bloqueiaAposOMaximoDentroDaJanela() {

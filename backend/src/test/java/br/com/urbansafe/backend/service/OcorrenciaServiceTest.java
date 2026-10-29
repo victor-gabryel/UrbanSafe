@@ -215,7 +215,8 @@ class OcorrenciaServiceTest {
     void exclusaoLogicaRespeitaPropriedadeEStatus() {
         Ocorrencia o = ocorrencia(14, 10, StatusOcorrencia.PENDENTE);
         ocorrencia(15, 10, StatusOcorrencia.PUBLICADA);
-        // outro usuário comum: a ocorrência PENDENTE nem é visível (404); na PUBLICADA falta permissão (403)
+        // outro usuário comum: a ocorrência PENDENTE nem é visível (404); na PUBLICADA
+        // falta permissão (403)
         assertEquals(HttpStatus.NOT_FOUND, erro(() -> service.excluir(OUTRO, 14)).getStatus());
         assertEquals(HttpStatus.FORBIDDEN, erro(() -> service.excluir(OUTRO, 15)).getStatus());
         // gestor não exclui relato alheio; autor não exclui publicada

@@ -63,7 +63,8 @@ class MidiaServiceTest {
     }
 
     private MockMultipartFile arquivo(String nome, byte[] conteudo) {
-        // Content-Type "image/png" informado de propósito: o servidor deve ignorá-lo e olhar os bytes.
+        // Content-Type "image/png" informado de propósito: o servidor deve ignorá-lo e
+        // olhar os bytes.
         return new MockMultipartFile("arquivo", nome, "image/png", conteudo);
     }
 
@@ -126,9 +127,12 @@ class MidiaServiceTest {
         when(midiaRepository.findByIdAndOcorrenciaIdAndRemovidaEmIsNull(7, 1)).thenReturn(Optional.of(midia));
 
         ocorrencia.setStatus(StatusOcorrencia.PUBLICADA);
-        // autor não remove depois de publicada; usuário comum alheio não remove; gestor remove
-        assertEquals(HttpStatus.CONFLICT, assertThrows(ApiException.class, () -> service.remover(AUTOR, 1, 7)).getStatus());
-        assertEquals(HttpStatus.FORBIDDEN, assertThrows(ApiException.class, () -> service.remover(OUTRO, 1, 7)).getStatus());
+        // autor não remove depois de publicada; usuário comum alheio não remove; gestor
+        // remove
+        assertEquals(HttpStatus.CONFLICT,
+                assertThrows(ApiException.class, () -> service.remover(AUTOR, 1, 7)).getStatus());
+        assertEquals(HttpStatus.FORBIDDEN,
+                assertThrows(ApiException.class, () -> service.remover(OUTRO, 1, 7)).getStatus());
         assertNull(midia.getRemovidaEm());
 
         service.remover(GESTOR, 1, 7);
