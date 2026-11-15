@@ -11,8 +11,7 @@ public record UsuarioResponse(
         String email,
         String perfil,
         boolean emailVerificado,
-        OffsetDateTime dataCadastro
-) {
+        OffsetDateTime dataCadastro) {
 
     /** Exige que o perfil já esteja carregado (use findComPerfil...). */
     public static UsuarioResponse de(Usuario usuario) {
