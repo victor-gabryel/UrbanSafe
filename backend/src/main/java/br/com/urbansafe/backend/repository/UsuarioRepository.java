@@ -13,7 +13,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     boolean existsByEmailIgnoreCase(String email);
 
-    /** Carrega o perfil junto (open-in-view está desligado, então o LAZY não pode ser resolvido depois). */
+    /**
+     * Carrega o perfil junto (open-in-view está desligado, então o LAZY não pode
+     * ser resolvido depois).
+     */
     @EntityGraph(attributePaths = "perfil")
     Optional<Usuario> findComPerfilByEmailIgnoreCase(String email);
 

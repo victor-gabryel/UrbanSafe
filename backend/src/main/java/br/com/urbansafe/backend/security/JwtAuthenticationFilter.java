@@ -22,12 +22,16 @@ import br.com.urbansafe.backend.repository.UsuarioRepository;
 
 /**
  * Autentica a requisição a partir do header "Authorization: Bearer ...".
- * Token inválido/expirado NÃO interrompe a cadeia: a requisição segue sem autenticação e o
- * AuthenticationEntryPoint responde 401 nas rotas protegidas (rotas públicas continuam funcionando).
- * O usuário é recarregado do banco a cada requisição: conta desativada perde o acesso imediatamente
+ * Token inválido/expirado NÃO interrompe a cadeia: a requisição segue sem
+ * autenticação e o
+ * AuthenticationEntryPoint responde 401 nas rotas protegidas (rotas públicas
+ * continuam funcionando).
+ * O usuário é recarregado do banco a cada requisição: conta desativada perde o
+ * acesso imediatamente
  * e o perfil usado nas autoridades é sempre o atual.
  *
- * Não é um @Component de propósito: é instanciado no SecurityConfig para não ser registrado duas vezes.
+ * Não é um @Component de propósito: é instanciado no SecurityConfig para não
+ * ser registrado duas vezes.
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -57,7 +61,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Integer usuarioId = jwtService.validarEExtrairUsuarioId(token);
                 Optional<Usuario> usuario = usuarioRepository.findComPerfilById(usuarioId);
 
-                // Conta desativada ou com e-mail não verificado não acessa rotas protegidas, mesmo com JWT válido.
+                // Conta desativada ou com e-mail não verificado não acessa rotas protegidas,
+                // mesmo com JWT válido.
                 if (usuario.isPresent() && usuario.get().isAtivo() && usuario.get().isEmailVerificado()) {
                     autenticar(usuario.get(), request);
                 } else {
@@ -77,8 +82,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UsuarioPrincipal principal = new UsuarioPrincipal(usuario.getId(), usuario.getEmail(), perfil);
         List<GrantedAuthority> autoridades = List.of(new SimpleGrantedAuthority("ROLE_" + perfil));
 
-        UsernamePasswordAuthenticationToken autenticacao =
-                new UsernamePasswordAuthenticationToken(principal, null, autoridades);
+        UsernamePasswordAuthenticationToken autenticacao = new UsernamePasswordAuthenticationToken(principal, null,
+                autoridades);
         autenticacao.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContext contexto = SecurityContextHolder.createEmptyContext();

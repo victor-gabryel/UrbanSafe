@@ -29,7 +29,8 @@ import br.com.urbansafe.backend.entity.Usuario;
 
 /**
  * Emite e valida o JWT de acesso (HS256, curta duração).
- * Claims: sub (id do usuário), perfil, iss, iat, exp, jti. Nada de e-mail, senha ou dados pessoais.
+ * Claims: sub (id do usuário), perfil, iss, iat, exp, jti. Nada de e-mail,
+ * senha ou dados pessoais.
  */
 @Service
 public class JwtService {
@@ -77,7 +78,10 @@ public class JwtService {
         return gerarAccessToken(usuario, Instant.now());
     }
 
-    /** Permite informar o instante de emissão (usado nos testes para gerar tokens já expirados). */
+    /**
+     * Permite informar o instante de emissão (usado nos testes para gerar tokens já
+     * expirados).
+     */
     public String gerarAccessToken(Usuario usuario, Instant emitidoEm) {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(issuer)
@@ -113,7 +117,8 @@ public class JwtService {
             throw new TokenJwtException(
                     expirado ? TokenJwtException.Motivo.EXPIRADO : TokenJwtException.Motivo.INVALIDO, e);
         } catch (JwtException | IllegalArgumentException e) {
-            // JwtException cobre token malformado/assinatura inválida; IllegalArgumentException cobre sub ausente/não numérico.
+            // JwtException cobre token malformado/assinatura inválida;
+            // IllegalArgumentException cobre sub ausente/não numérico.
             throw new TokenJwtException(TokenJwtException.Motivo.INVALIDO, e);
         }
     }

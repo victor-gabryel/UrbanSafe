@@ -11,21 +11,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    public static final String ESQUEMA_BEARER = "bearerAuth";
+        public static final String ESQUEMA_BEARER = "bearerAuth";
 
-    @Bean
-    public OpenAPI urbanSafeOpenApi() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("UrbanSafe API")
-                        .version("0.0.1")
-                        .description("API REST do UrbanSafe. Rotas de autenticação são públicas; "
-                                + "as demais exigem o cabeçalho Authorization: Bearer {accessToken}. "
-                                + "Contas só acessam rotas protegidas depois de verificar o e-mail."))
-                .components(new Components().addSecuritySchemes(ESQUEMA_BEARER,
-                        new SecurityScheme()
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")));
-    }
+        @Bean
+        public OpenAPI urbanSafeOpenApi() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("UrbanSafe API")
+                                                .version("0.0.1")
+                                                .description("API REST do UrbanSafe. Rotas de autenticação são públicas; "
+                                                                + "as demais exigem o cabeçalho Authorization: Bearer {accessToken}. "
+                                                                + "Contas só acessam rotas protegidas depois de verificar o e-mail."))
+                                .components(new Components().addSecuritySchemes(ESQUEMA_BEARER,
+                                                new SecurityScheme()
+                                                                .type(SecurityScheme.Type.HTTP)
+                                                                .scheme("bearer")
+                                                                .bearerFormat("JWT")));
+        }
 }
