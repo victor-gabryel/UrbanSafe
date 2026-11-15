@@ -21,8 +21,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 /**
- * Relato georreferenciado. A coluna geográfica "localizacao" é GERADA pelo banco a partir de
- * longitude/latitude e por isso NÃO é mapeada aqui: as consultas espaciais rodam em SQL nativo
+ * Relato georreferenciado. A coluna geográfica "localizacao" é GERADA pelo
+ * banco a partir de
+ * longitude/latitude e por isso NÃO é mapeada aqui: as consultas espaciais
+ * rodam em SQL nativo
  * (OcorrenciaConsultaRepository), nunca em memória.
  */
 @Entity
@@ -33,7 +35,10 @@ public class Ocorrencia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /** Autor. Sempre definido a partir da identidade autenticada, nunca do corpo da requisição. */
+    /**
+     * Autor. Sempre definido a partir da identidade autenticada, nunca do corpo da
+     * requisição.
+     */
     @Column(name = "usuario_id", nullable = false, updatable = false)
     private Integer usuarioId;
 

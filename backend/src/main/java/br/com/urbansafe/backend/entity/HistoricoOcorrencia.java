@@ -15,7 +15,10 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-/** Evento imutável (somente acréscimo; o banco bloqueia UPDATE e DELETE). Sem setters de propósito. */
+/**
+ * Evento imutável (somente acréscimo; o banco bloqueia UPDATE e DELETE). Sem
+ * setters de propósito.
+ */
 @Entity
 @Table(name = "historico_ocorrencia")
 public class HistoricoOcorrencia {
