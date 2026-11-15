@@ -8,6 +8,6 @@ import br.com.urbansafe.backend.entity.AcaoModeracao;
 
 @Schema(description = "Ação de moderação (GESTOR ou ADMINISTRADOR). A justificativa é obrigatória, exceto em APROVAR.")
 public record ModerarRequest(
-        @Schema(example = "REJEITAR") @NotNull(message = "A ação é obrigatória") AcaoModeracao acao,
-        @Schema(example = "Relato sem informações suficientes para localização.") @Size(max = 1000, message = "A justificativa deve ter no máximo 1000 caracteres") String justificativa) {
+                @Schema(example = "REJEITAR") @NotNull(message = "A ação é obrigatória") AcaoModeracao acao,
+                @Schema(example = "Relato sem informações suficientes para localização.") @Size(max = 1000, message = "A justificativa deve ter no máximo 1000 caracteres") String justificativa) {
 }

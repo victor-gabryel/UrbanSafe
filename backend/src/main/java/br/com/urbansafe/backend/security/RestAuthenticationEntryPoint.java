@@ -10,7 +10,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-/** 401 em JSON para requisições sem autenticação válida (ausente, inválida ou expirada). */
+/**
+ * 401 em JSON para requisições sem autenticação válida (ausente, inválida ou
+ * expirada).
+ */
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

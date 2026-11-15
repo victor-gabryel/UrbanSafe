@@ -20,12 +20,18 @@ import br.com.urbansafe.backend.entity.StatusOcorrencia;
 import br.com.urbansafe.backend.util.BoundingBox;
 
 /**
- * Consultas de leitura que dependem do PostGIS. Todo filtro espacial é executado NO BANCO
- * (ST_Intersects + ST_MakeEnvelope sobre a coluna geography indexada por GiST); nada é filtrado em Java.
+ * Consultas de leitura que dependem do PostGIS. Todo filtro espacial é
+ * executado NO BANCO
+ * (ST_Intersects + ST_MakeEnvelope sobre a coluna geography indexada por GiST);
+ * nada é filtrado em Java.
  *
- * <p>Compatibilidade geography/geometry: o envelope é criado como geometry (SRID 4326) e convertido
- * explicitamente com CAST(... AS geography) para que o operador de interseção use o índice GiST de
- * {@code ocorrencias.localizacao}. A agregação do mapa de calor converte para geometry explicitamente
+ * <p>
+ * Compatibilidade geography/geometry: o envelope é criado como geometry (SRID
+ * 4326) e convertido
+ * explicitamente com CAST(... AS geography) para que o operador de interseção
+ * use o índice GiST de
+ * {@code ocorrencias.localizacao}. A agregação do mapa de calor converte para
+ * geometry explicitamente
  * apenas para usar ST_SnapToGrid.
  */
 @Repository
@@ -34,7 +40,8 @@ public class OcorrenciaConsultaRepository {
     /**
      * Quem consulta e em qual contexto.
      *
-     * @param mapa true nas rotas /api/mapa/**: dados públicos, só PUBLICADA (a equipe pode escolher outro status)
+     * @param mapa true nas rotas /api/mapa/**: dados públicos, só PUBLICADA (a
+     *             equipe pode escolher outro status)
      */
     public record Escopo(Integer visualizadorId, boolean equipe, boolean mapa) {
     }
@@ -91,7 +98,10 @@ public class OcorrenciaConsultaRepository {
                 rs.getObject("data_ocorrencia", OffsetDateTime.class)));
     }
 
-    /** Agrega por célula de grade (ST_SnapToGrid). Retorna no máximo {@code limite} células, as mais densas primeiro. */
+    /**
+     * Agrega por célula de grade (ST_SnapToGrid). Retorna no máximo {@code limite}
+     * células, as mais densas primeiro.
+     */
     public List<PontoCalorResponse> calor(FiltroOcorrencia filtro, Escopo escopo, double celulaGraus, int limite) {
         MapSqlParameterSource p = new MapSqlParameterSource();
         String where = condicoes(filtro, escopo, p);
@@ -104,7 +114,8 @@ public class OcorrenciaConsultaRepository {
                 + " GROUP BY 1) c"
                 + " ORDER BY c.qtd DESC, lat, lon LIMIT :limite";
 
-        // A intensidade (0-1) é calculada pelo serviço, que conhece o maior valor retornado.
+        // A intensidade (0-1) é calculada pelo serviço, que conhece o maior valor
+        // retornado.
         return jdbc.query(sql, p, (rs, n) -> new PontoCalorResponse(
                 rs.getDouble("lat"), rs.getDouble("lon"), rs.getLong("qtd"), 0.0));
     }
@@ -116,7 +127,8 @@ public class OcorrenciaConsultaRepository {
         c.add("o.excluida_em IS NULL");
 
         if (e.mapa()) {
-            // Mapa público: somente PUBLICADA; GESTOR/ADMINISTRADOR podem pedir outro status explicitamente.
+            // Mapa público: somente PUBLICADA; GESTOR/ADMINISTRADOR podem pedir outro
+            // status explicitamente.
             StatusOcorrencia alvo = (e.equipe() && f.status() != null) ? f.status() : StatusOcorrencia.PUBLICADA;
             c.add("o.status = CAST(:status AS status_ocorrencia)");
             p.addValue("status", alvo.name());

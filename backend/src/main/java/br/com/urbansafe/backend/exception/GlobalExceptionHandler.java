@@ -53,7 +53,10 @@ public class GlobalExceptionHandler {
                 "Valor inválido para o parâmetro '" + ex.getName() + "'.", request, List.of());
     }
 
-    /** Upload acima do limite do servidor (413) ou requisição multipart malformada (400). */
+    /**
+     * Upload acima do limite do servidor (413) ou requisição multipart malformada
+     * (400).
+     */
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ErroResponse> tratarMultipart(MultipartException ex, HttpServletRequest request) {
         if (ex instanceof MaxUploadSizeExceededException) {
@@ -63,7 +66,9 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.BAD_REQUEST, "Requisição multipart inválida.", request, List.of());
     }
 
-    /** Ex.: corrida de dois cadastros simultâneos com o mesmo e-mail (índice único). */
+    /**
+     * Ex.: corrida de dois cadastros simultâneos com o mesmo e-mail (índice único).
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErroResponse> tratarIntegridade(
             DataIntegrityViolationException ex, HttpServletRequest request) {
@@ -87,8 +92,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Qualquer outra exceção. Exceções padrão do Spring MVC (405, 415, 404 de rota...)
-     * implementam ErrorResponse e preservam o próprio status; o restante vira 500 genérico,
+     * Qualquer outra exceção. Exceções padrão do Spring MVC (405, 415, 404 de
+     * rota...)
+     * implementam ErrorResponse e preservam o próprio status; o restante vira 500
+     * genérico,
      * sem vazar detalhes internos.
      */
     @ExceptionHandler(Exception.class)

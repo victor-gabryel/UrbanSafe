@@ -7,7 +7,10 @@ import java.time.ZoneOffset;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 
-/** Escreve o mesmo formato de ErroResponse sem depender de ObjectMapper (usado fora do MVC, nos handlers de segurança). */
+/**
+ * Escreve o mesmo formato de ErroResponse sem depender de ObjectMapper (usado
+ * fora do MVC, nos handlers de segurança).
+ */
 final class ErroJsonWriter {
 
     private ErroJsonWriter() {

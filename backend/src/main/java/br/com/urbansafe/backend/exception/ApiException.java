@@ -2,7 +2,10 @@ package br.com.urbansafe.backend.exception;
 
 import org.springframework.http.HttpStatus;
 
-/** Erro de negócio/aplicação com status HTTP já definido e mensagem segura para o cliente. */
+/**
+ * Erro de negócio/aplicação com status HTTP já definido e mensagem segura para
+ * o cliente.
+ */
 public class ApiException extends RuntimeException {
 
     private final HttpStatus status;
@@ -40,7 +43,10 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.TOO_MANY_REQUESTS, mensagem);
     }
 
-    /** 413. Usa valueOf(int) para não depender do nome da constante, que mudou entre versões do Spring. */
+    /**
+     * 413. Usa valueOf(int) para não depender do nome da constante, que mudou entre
+     * versões do Spring.
+     */
     public static ApiException payloadTooLarge(String mensagem) {
         return new ApiException(HttpStatus.valueOf(413), mensagem);
     }
