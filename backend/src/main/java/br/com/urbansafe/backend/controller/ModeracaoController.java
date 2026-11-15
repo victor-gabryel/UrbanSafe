@@ -35,11 +35,10 @@ public class ModeracaoController {
         this.moderacaoService = moderacaoService;
     }
 
-    @Operation(summary = "Registrar ação de moderação",
-            description = "Perfis: GESTOR, ADMINISTRADOR. Transições: APROVAR (PENDENTE/OCULTA/REJEITADA → PUBLICADA); "
-                    + "REJEITAR (PENDENTE/PUBLICADA/OCULTA → REJEITADA); SOLICITAR_CORRECAO (PENDENTE/PUBLICADA → PENDENTE); "
-                    + "OCULTAR_TEMPORARIAMENTE (PENDENTE/PUBLICADA → OCULTA). Justificativa obrigatória, exceto em APROVAR. "
-                    + "Não é permitido moderar a própria ocorrência.")
+    @Operation(summary = "Registrar ação de moderação", description = "Perfis: GESTOR, ADMINISTRADOR. Transições: APROVAR (PENDENTE/OCULTA/REJEITADA → PUBLICADA); "
+            + "REJEITAR (PENDENTE/PUBLICADA/OCULTA → REJEITADA); SOLICITAR_CORRECAO (PENDENTE/PUBLICADA → PENDENTE); "
+            + "OCULTAR_TEMPORARIAMENTE (PENDENTE/PUBLICADA → OCULTA). Justificativa obrigatória, exceto em APROVAR. "
+            + "Não é permitido moderar a própria ocorrência.")
     @ApiResponse(responseCode = "201", description = "Decisão registrada")
     @ApiResponse(responseCode = "400", description = "Ação ausente ou justificativa obrigatória ausente")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
@@ -53,8 +52,7 @@ public class ModeracaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(moderacaoService.moderar(principal, id, request));
     }
 
-    @Operation(summary = "Consultar histórico de moderação",
-            description = "Perfis: GESTOR, ADMINISTRADOR. Registros imutáveis, em ordem cronológica.")
+    @Operation(summary = "Consultar histórico de moderação", description = "Perfis: GESTOR, ADMINISTRADOR. Registros imutáveis, em ordem cronológica.")
     @ApiResponse(responseCode = "200", description = "Decisões de moderação")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "403", description = "Sem permissão (exige GESTOR/ADMINISTRADOR)")

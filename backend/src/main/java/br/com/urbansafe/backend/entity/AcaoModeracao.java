@@ -4,10 +4,14 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Ações de moderação (tipo PostgreSQL acao_moderacao) com o fluxo mínimo adotado pelo projeto.
+ * Ações de moderação (tipo PostgreSQL acao_moderacao) com o fluxo mínimo
+ * adotado pelo projeto.
  *
- * <p>O documento define apenas os valores das ações e dos status. As transições abaixo são a solução
+ * <p>
+ * O documento define apenas os valores das ações e dos status. As transições
+ * abaixo são a solução
  * mínima e consistente adotada (decisão registrada no README):
+ * 
  * <pre>
  * APROVAR                 PENDENTE | OCULTA | REJEITADA  -> PUBLICADA   (justificativa opcional)
  * REJEITAR                PENDENTE | PUBLICADA | OCULTA  -> REJEITADA   (justificativa obrigatória)

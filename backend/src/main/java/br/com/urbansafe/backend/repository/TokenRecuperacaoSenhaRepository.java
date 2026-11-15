@@ -11,13 +11,16 @@ import org.springframework.data.repository.query.Param;
 import br.com.urbansafe.backend.entity.TokenRecuperacaoSenha;
 
 public interface TokenRecuperacaoSenhaRepository
-        extends JpaRepository<TokenRecuperacaoSenha, Integer> {
+                extends JpaRepository<TokenRecuperacaoSenha, Integer> {
 
-    Optional<TokenRecuperacaoSenha> findByTokenHash(String tokenHash);
+        Optional<TokenRecuperacaoSenha> findByTokenHash(String tokenHash);
 
-    /** Invalida todos os tokens pendentes do usuário (um novo pedido ou uma redefinição substitui os anteriores). */
-    @Modifying
-    @Query("update TokenRecuperacaoSenha t set t.utilizadoEm = :agora "
-            + "where t.usuario.id = :usuarioId and t.utilizadoEm is null")
-    int invalidarPendentes(@Param("usuarioId") Integer usuarioId, @Param("agora") OffsetDateTime agora);
+        /**
+         * Invalida todos os tokens pendentes do usuário (um novo pedido ou uma
+         * redefinição substitui os anteriores).
+         */
+        @Modifying
+        @Query("update TokenRecuperacaoSenha t set t.utilizadoEm = :agora "
+                        + "where t.usuario.id = :usuarioId and t.utilizadoEm is null")
+        int invalidarPendentes(@Param("usuarioId") Integer usuarioId, @Param("agora") OffsetDateTime agora);
 }
