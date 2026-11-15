@@ -1,11 +1,47 @@
 {
   "expo": {
-    "name": "frontend-mobile",
-    "slug": "frontend-mobile",
+    "name": "UrbanSafe",
+    "slug": "urbansafe-mobile",
     "version": "1.0.0",
+    "scheme": "urbansafe",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.urbansafe.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "O UrbanSafe usa sua localização para centralizar o mapa e registrar onde a ocorrência aconteceu.",
+        "NSPhotoLibraryUsageDescription": "O UrbanSafe acessa suas fotos para anexar imagens à ocorrência."
+      }
+    },
+    "android": {
+      "package": "br.com.urbansafe.mobile",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "usesCleartextTraffic": true
+    },
     "plugins": [
       "expo-router",
-      "expo-status-bar"
-    ]
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O UrbanSafe usa sua localização para centralizar o mapa e registrar onde a ocorrência aconteceu."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O UrbanSafe acessa suas fotos para anexar imagens à ocorrência."
+        }
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "apiUrl": null
+    }
   }
 }
