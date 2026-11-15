@@ -24,7 +24,7 @@ import br.com.urbansafe.backend.service.MapaService;
 
 @RestController
 @RequestMapping("/api/mapa")
-@Tag(name = "Mapa", description = "Dados georreferenciados para o mapa e o mapa de calor (PostGIS). Exigem JWT; "
+@Tag(name = "Mapa", description = "Dados georreferenciados para o mapa e o mapa de calor (PostGIS). Leitura pública (modo visitante); "
         + "retornam apenas ocorrências PUBLICADAS e nenhum dado pessoal.")
 @SecurityRequirement(name = OpenApiConfig.ESQUEMA_BEARER)
 public class MapaController {
@@ -34,7 +34,7 @@ public class MapaController {
         this.mapaService = mapaService;
     }
 
-    @Operation(summary = "Ocorrências na área do mapa", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. 'bbox' é obrigatório (lado máximo configurável, padrão 5°). "
+    @Operation(summary = "Ocorrências na área do mapa", description = "Acesso: público (visitante) ou autenticado. 'bbox' é obrigatório (lado máximo configurável, padrão 5°). "
             + "Retorna no máximo 'limit' marcadores (padrão e máximo: 500); 'truncado=true' indica que há mais na área. "
             + "Somente GESTOR/ADMINISTRADOR podem pedir outro status além de PUBLICADA.")
     @ApiResponse(responseCode = "200", description = "Marcadores")
@@ -53,7 +53,7 @@ public class MapaController {
         return ResponseEntity.ok(mapaService.ocorrencias(principal, bbox, tipo, dataInicio, dataFim, status, limit));
     }
 
-    @Operation(summary = "Dados agregados para o mapa de calor", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Agrega as ocorrências em células de uma grade "
+    @Operation(summary = "Dados agregados para o mapa de calor", description = "Acesso: público (visitante) ou autenticado. Agrega as ocorrências em células de uma grade "
             + "(ST_SnapToGrid) dentro do 'bbox' obrigatório. Cada ponto traz o centro da célula, a quantidade e a "
             + "intensidade relativa (0 a 1). **A densidade reflete apenas os relatos registrados; não representa a "
             + "probabilidade real de crime nem a segurança de um local.** Máximo de 2000 células (as mais densas).")

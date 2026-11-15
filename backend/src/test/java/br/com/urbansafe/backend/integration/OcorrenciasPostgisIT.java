@@ -142,7 +142,9 @@ class OcorrenciasPostgisIT {
         @Test
         void semTokenRetorna401EComTokenSemPermissaoRetorna403() throws Exception {
                 mvc.perform(get("/api/ocorrencias")).andExpect(status().isUnauthorized());
-                mvc.perform(get("/api/mapa/calor?bbox=" + BBOX)).andExpect(status().isUnauthorized());
+                // Mapa de calor é público (modo visitante); /api/ocorrencias continua exigindo
+                // JWT.
+                mvc.perform(get("/api/mapa/calor?bbox=" + BBOX)).andExpect(status().isOk());
 
                 mvc.perform(post("/api/tipos-ocorrencia").header("Authorization", tAutor)
                                 .contentType(MediaType.APPLICATION_JSON).content("{\"nome\":\"X\"}"))

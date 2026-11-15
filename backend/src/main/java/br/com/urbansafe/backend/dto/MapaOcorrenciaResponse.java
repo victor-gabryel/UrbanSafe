@@ -14,13 +14,13 @@ import br.com.urbansafe.backend.entity.StatusOcorrencia;
  */
 @Schema(description = "Marcador de ocorrência no mapa (sem dados pessoais)")
 public record MapaOcorrenciaResponse(
-        Integer id,
-        Integer tipoId,
-        String tipoNome,
-        String titulo,
-        BigDecimal latitude,
-        BigDecimal longitude,
-        StatusOcorrencia status,
-        Relevancia relevancia,
-        OffsetDateTime dataOcorrencia) {
+                Integer id,
+                Integer tipoId,
+                String tipoNome,
+                String titulo,
+                BigDecimal latitude,
+                BigDecimal longitude,
+                StatusOcorrencia status,
+                Relevancia relevancia,
+                OffsetDateTime dataOcorrencia) {
 }

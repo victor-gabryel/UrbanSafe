@@ -104,13 +104,19 @@ public class MapaService {
     private FiltroOcorrencia filtro(UsuarioPrincipal principal, String bbox, Integer tipoId,
             OffsetDateTime dataInicio, OffsetDateTime dataFim, StatusOcorrencia status) {
         // Usuário comum só vê dados públicos (PUBLICADA); pedir outro status é falta de permissão, não filtro vazio.
-        if (status != null && status != StatusOcorrencia.PUBLICADA && !principal.isEquipe()) {
+        if (status != null && status != StatusOcorrencia.PUBLICADA && !ehEquipe(principal)) {
             throw ApiException.forbidden("Você não tem permissão para filtrar o mapa por este status.");
         }
         return Filtros.montar(bbox, maxLadoBbox, true, tipoId, dataInicio, dataFim, status, false);
     }
 
     private OcorrenciaConsultaRepository.Escopo escopo(UsuarioPrincipal principal) {
-        return new OcorrenciaConsultaRepository.Escopo(principal.id(), principal.isEquipe(), true);
+        // principal == null: visitante anônimo (rotas públicas do mapa) — só dados PUBLICADOS.
+        return new OcorrenciaConsultaRepository.Escopo(principal == null ? null : principal.id(),
+                ehEquipe(principal), true);
+    }
+
+    private boolean ehEquipe(UsuarioPrincipal principal) {
+        return principal != null && principal.isEquipe();
     }
 }
