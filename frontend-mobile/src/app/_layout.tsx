@@ -23,6 +23,9 @@ function Raiz() {
       <Stack.Screen name="cadastro" />
       <Stack.Screen name="esqueci-senha" />
       <Stack.Screen name="verificar-email" />
+      <Stack.Screen name="gestor" />
+      <Stack.Screen name="admin" />
+      <Stack.Screen name="moderar/[id]" />
     </Stack>
   );
 }

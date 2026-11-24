@@ -1,31 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { icone, useOpcoesDaBarra } from '../../components/navegacao';
+import { useAuth } from '../../context/AuthContext';
 import { colors, shadow } from '../../theme';
-
-type Icone = keyof typeof Ionicons.glyphMap;
-
-function icone(ativo: Icone, inativo: Icone) {
-  return ({ focused, color }: { focused: boolean; color: string }) => (
-    <Ionicons name={focused ? ativo : inativo} size={22} color={color} />
-  );
-}
+import { ehEquipe, rotaInicial } from '../../utils/perfil';
 
 export default function TabsLayout() {
-  const insets = useSafeAreaInsets();
+  const opcoes = useOpcoesDaBarra();
+  const { usuario } = useAuth();
+  // Gestor e Administrador têm área própria; Usuário e visitante seguem nestas abas.
+  if (ehEquipe(usuario)) return <Redirect href={rotaInicial(usuario!.perfil)} />;
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: '#8A97AD',
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
-        tabBarStyle: { height: 62 + insets.bottom, paddingBottom: insets.bottom + 4, paddingTop: 6, borderTopColor: colors.border },
-      }}
-    >
+    <Tabs screenOptions={opcoes}>
       <Tabs.Screen name="index" options={{ title: 'Início', tabBarIcon: icone('home', 'home-outline') }} />
       <Tabs.Screen name="mapa" options={{ title: 'Mapa', tabBarIcon: icone('map', 'map-outline') }} />
       <Tabs.Screen

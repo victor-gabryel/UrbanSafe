@@ -8,6 +8,7 @@ import { Banner, Button, Field } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { mensagemDeErro } from '../services/http';
 import { colors } from '../theme';
+import { rotaInicial } from '../utils/perfil';
 import { emailValido } from '../utils/validacao';
 
 export default function Login() {
@@ -24,8 +25,8 @@ export default function Login() {
     if (!senha) return setErro('Informe a senha.');
     setLoading(true);
     try {
-      await entrar(email, senha);
-      router.replace('/(tabs)');
+      const u = await entrar(email, senha);
+      router.replace(rotaInicial(u.perfil));
     } catch (e) {
       setErro(mensagemDeErro(e));
     } finally {

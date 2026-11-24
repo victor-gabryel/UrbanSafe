@@ -6,6 +6,7 @@ import type {
   MapaCalor,
   MapaOcorrencias,
   Ocorrencia,
+  OcorrenciaDetalhe,
   Pagina,
   TipoOcorrencia,
 } from './types';
@@ -28,6 +29,8 @@ export const ocorrenciasApi = {
 
   calor: (b: Bbox, f: FiltrosMapa, celula: number) =>
     http.get<MapaCalor>('/api/mapa/calor', { params: { ...paramsMapa(b, f), celula } }).then((r) => r.data),
+
+  detalhe: (id: number) => http.get<OcorrenciaDetalhe>(`/api/ocorrencias/${id}`).then((r) => r.data),
 
   criar: (p: CriarOcorrenciaPayload) => http.post<Ocorrencia>('/api/ocorrencias', p).then((r) => r.data),
 

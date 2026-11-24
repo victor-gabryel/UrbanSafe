@@ -9,7 +9,7 @@ interface AuthState {
   carregando: boolean;
   usuario: Usuario | null;
   logado: boolean;
-  entrar: (email: string, senha: string) => Promise<void>;
+  entrar: (email: string, senha: string) => Promise<Usuario>;
   sair: () => Promise<void>;
   atualizarUsuario: (u: Usuario) => void;
 }
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const r = await authApi.login(email.trim(), senha);
     await tokenStorage.save(r.accessToken, r.refreshToken);
     setUsuario(r.usuario);
+    return r.usuario;
   }, []);
 
   const sair = useCallback(async () => {
