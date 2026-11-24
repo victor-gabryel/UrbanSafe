@@ -120,6 +120,55 @@ public class OcorrenciaConsultaRepository {
                 rs.getDouble("lat"), rs.getDouble("lon"), rs.getLong("qtd"), 0.0));
     }
 
+    /**
+     * Ocorrência PUBLICADA próxima de um percurso, usada no indicador de exposição das rotas.
+     *
+     * @param distanciaMetros distância mínima entre a ocorrência e a linha do percurso
+     */
+    public record OcorrenciaProxima(Relevancia relevancia, OffsetDateTime dataReferencia, OffsetDateTime atualizadaEm,
+            double distanciaMetros) {
+    }
+
+    /**
+     * Ocorrências publicadas (não excluídas) a até {@code raioMetros} do percurso e com data de referência
+     * a partir de {@code desde}. O filtro roda no banco (ST_DWithin sobre geography com índice GiST). As mais
+     * próximas vêm primeiro e o resultado é limitado a {@code limite} linhas.
+     *
+     * @param linhaGeoJson geometria LineString em GeoJSON (coordenadas [longitude, latitude])
+     */
+    public List<OcorrenciaProxima> proximasDoPercurso(String linhaGeoJson, double raioMetros, OffsetDateTime desde,
+            int limite) {
+        MapSqlParameterSource p = new MapSqlParameterSource();
+        p.addValue("linha", linhaGeoJson);
+        p.addValue("raio", raioMetros);
+        p.addValue("desde", desde);
+        p.addValue("limite", limite);
+
+        String sql = "SELECT o.relevancia, COALESCE(o.data_ocorrencia, o.data_cadastro) AS data_referencia,"
+                + " o.data_atualizacao, ST_Distance(o.localizacao, r.g) AS distancia"
+                + " FROM ocorrencias o"
+                + " CROSS JOIN (SELECT CAST(ST_SetSRID(ST_GeomFromGeoJSON(CAST(:linha AS text)), 4326) AS geography) AS g) r"
+                + " WHERE o.excluida_em IS NULL"
+                + " AND o.status = CAST('PUBLICADA' AS status_ocorrencia)"
+                + " AND COALESCE(o.data_ocorrencia, o.data_cadastro) >= :desde"
+                + " AND ST_DWithin(o.localizacao, r.g, :raio)"
+                + " ORDER BY distancia ASC LIMIT :limite";
+
+        return jdbc.query(sql, p, (rs, n) -> new OcorrenciaProxima(
+                Relevancia.valueOf(rs.getString("relevancia")),
+                rs.getObject("data_referencia", OffsetDateTime.class),
+                rs.getObject("data_atualizacao", OffsetDateTime.class),
+                rs.getDouble("distancia")));
+    }
+
+    /** Data da última atualização de uma ocorrência publicada, ou null se não houver nenhuma. */
+    public OffsetDateTime ultimaAtualizacaoPublicada() {
+        return jdbc.queryForObject(
+                "SELECT MAX(data_atualizacao) FROM ocorrencias WHERE excluida_em IS NULL"
+                        + " AND status = CAST('PUBLICADA' AS status_ocorrencia)",
+                new MapSqlParameterSource(), OffsetDateTime.class);
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     private String condicoes(FiltroOcorrencia f, Escopo e, MapSqlParameterSource p) {
@@ -133,7 +182,10 @@ public class OcorrenciaConsultaRepository {
             c.add("o.status = CAST(:status AS status_ocorrencia)");
             p.addValue("status", alvo.name());
         } else {
-            if (!e.equipe()) {
+            if (!e.equipe() && e.visualizadorId() == null) {
+                // Visitante anônimo: somente relatos publicados.
+                c.add("o.status = CAST('PUBLICADA' AS status_ocorrencia)");
+            } else if (!e.equipe()) {
                 // Usuário comum: relatos publicados + os próprios (em qualquer status).
                 c.add("(o.status = CAST('PUBLICADA' AS status_ocorrencia) OR o.usuario_id = :visualizadorId)");
                 p.addValue("visualizadorId", e.visualizadorId());

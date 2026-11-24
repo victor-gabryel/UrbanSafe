@@ -13,12 +13,19 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.urbansafe.backend.config.OpenApiConfig;
 import br.com.urbansafe.backend.dto.AtualizarPerfilRequest;
+import br.com.urbansafe.backend.dto.OcorrenciaResponse;
+import br.com.urbansafe.backend.dto.PaginaResponse;
+import br.com.urbansafe.backend.dto.RotaResumoResponse;
 import br.com.urbansafe.backend.dto.UsuarioResponse;
+import br.com.urbansafe.backend.entity.StatusOcorrencia;
 import br.com.urbansafe.backend.security.UsuarioPrincipal;
+import br.com.urbansafe.backend.service.OcorrenciaService;
+import br.com.urbansafe.backend.service.RotaService;
 import br.com.urbansafe.backend.service.UsuarioService;
 
 @RestController
@@ -28,9 +35,38 @@ import br.com.urbansafe.backend.service.UsuarioService;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final OcorrenciaService ocorrenciaService;
+    private final RotaService rotaService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, OcorrenciaService ocorrenciaService,
+            RotaService rotaService) {
         this.usuarioService = usuarioService;
+        this.ocorrenciaService = ocorrenciaService;
+        this.rotaService = rotaService;
+    }
+
+    @Operation(summary = "Listar as ocorrências que registrei", description = "Qualquer status (PENDENTE, PUBLICADA, REJEITADA, OCULTA), mais recentes primeiro.")
+    @ApiResponse(responseCode = "200", description = "Página de ocorrências")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @GetMapping("/me/ocorrencias")
+    public ResponseEntity<PaginaResponse<OcorrenciaResponse>> minhasOcorrencias(
+            @AuthenticationPrincipal UsuarioPrincipal principal,
+            @RequestParam(name = "status", required = false) StatusOcorrencia status,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "limit", defaultValue = "20") int limit) {
+        return ResponseEntity.ok(ocorrenciaService.listar(principal, null, null, null, null, status, true, page,
+                limit));
+    }
+
+    @Operation(summary = "Listar as rotas que calculei", description = "Histórico do usuário autenticado (mesmo conteúdo de GET /api/rotas).")
+    @ApiResponse(responseCode = "200", description = "Página de consultas")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @GetMapping("/me/rotas")
+    public ResponseEntity<PaginaResponse<RotaResumoResponse>> minhasRotas(
+            @AuthenticationPrincipal UsuarioPrincipal principal,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "limit", defaultValue = "20") int limit) {
+        return ResponseEntity.ok(rotaService.listar(principal, page, limit));
     }
 
     @Operation(summary = "Consultar o próprio perfil")

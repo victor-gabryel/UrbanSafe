@@ -101,9 +101,18 @@ public class OcorrenciaService {
             throw ApiException.badRequest("O parâmetro limit deve estar entre 1 e " + limiteMaximo + ".");
         }
 
+        if (principal == null) {
+            // Visitante anônimo (rota pública): só enxerga PUBLICADAS e não tem "minhas" ocorrências.
+            if (apenasMinhas || (status != null && status != StatusOcorrencia.PUBLICADA)) {
+                throw ApiException.unauthorized("Autenticação necessária para este filtro.");
+            }
+        }
+
         FiltroOcorrencia filtro = Filtros.montar(bbox, maxLadoBbox, false, tipoId, dataInicio, dataFim,
                 status, apenasMinhas);
-        var escopo = new OcorrenciaConsultaRepository.Escopo(principal.id(), principal.isEquipe(), false);
+        var escopo = principal == null
+                ? new OcorrenciaConsultaRepository.Escopo(null, false, false)
+                : new OcorrenciaConsultaRepository.Escopo(principal.id(), principal.isEquipe(), false);
 
         long total = consultaRepository.contar(filtro, escopo);
         List<OcorrenciaResponse> itens = total == 0
@@ -242,7 +251,7 @@ public class OcorrenciaService {
     // ---------------------------------------------------------------------------------------------
 
     private boolean mostrarAutor(UsuarioPrincipal principal, Ocorrencia ocorrencia) {
-        return principal.isEquipe() || acesso.ehAutor(principal, ocorrencia);
+        return principal != null && (principal.isEquipe() || acesso.ehAutor(principal, ocorrencia));
     }
 
     private TipoOcorrencia tipoAtivo(Integer id) {

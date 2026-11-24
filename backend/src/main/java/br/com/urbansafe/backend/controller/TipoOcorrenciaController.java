@@ -28,18 +28,17 @@ import br.com.urbansafe.backend.service.TipoOcorrenciaService;
 
 @RestController
 @RequestMapping("/api/tipos-ocorrencia")
-@Tag(name = "Tipos de ocorrência", description = "Catálogo de tipos. Leitura: qualquer usuário autenticado. "
+@Tag(name = "Tipos de ocorrência", description = "Catálogo de tipos. Leitura: pública (visitante). "
         + "Criação, edição e desativação: somente ADMINISTRADOR.")
 @SecurityRequirement(name = OpenApiConfig.ESQUEMA_BEARER)
 public class TipoOcorrenciaController {
-
     private final TipoOcorrenciaService service;
 
     public TipoOcorrenciaController(TipoOcorrenciaService service) {
         this.service = service;
     }
 
-    @Operation(summary = "Listar tipos ativos", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Retorna somente tipos ativos, ordenados por nome.")
+    @Operation(summary = "Listar tipos ativos", description = "Acesso: público. Retorna somente tipos ativos, ordenados por nome.")
     @ApiResponse(responseCode = "200", description = "Lista de tipos ativos")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @GetMapping
@@ -47,7 +46,7 @@ public class TipoOcorrenciaController {
         return ResponseEntity.ok(service.listarAtivos());
     }
 
-    @Operation(summary = "Consultar tipo por id", description = "Perfis: USUARIO, GESTOR, ADMINISTRADOR. Tipos inativos só são visíveis ao ADMINISTRADOR (404 para os demais).")
+    @Operation(summary = "Consultar tipo por id", description = "Acesso: público. Tipos inativos só são visíveis ao ADMINISTRADOR (404 para os demais).")
     @ApiResponse(responseCode = "200", description = "Tipo")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "404", description = "Tipo não encontrado")

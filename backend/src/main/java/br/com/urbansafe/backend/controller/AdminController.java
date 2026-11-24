@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.urbansafe.backend.config.OpenApiConfig;
 import br.com.urbansafe.backend.dto.AlterarPerfilRequest;
+import br.com.urbansafe.backend.dto.AtualizarStatusUsuarioRequest;
 import br.com.urbansafe.backend.dto.AuditoriaResponse;
 import br.com.urbansafe.backend.dto.PaginaResponse;
+import br.com.urbansafe.backend.dto.UsuarioAdminResponse;
 import br.com.urbansafe.backend.dto.UsuarioResponse;
 import br.com.urbansafe.backend.exception.ApiException;
 import br.com.urbansafe.backend.security.UsuarioPrincipal;
@@ -51,6 +53,28 @@ public class AdminController {
             @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer id,
             @Valid @RequestBody AlterarPerfilRequest request) {
         return ResponseEntity.ok(administracaoService.alterarPerfil(principal, id, request));
+    }
+
+    @Operation(summary = "Listar usuários", description = "Perfil: ADMINISTRADOR. Ordenado por id.")
+    @ApiResponse(responseCode = "200", description = "Página de usuários")
+    @ApiResponse(responseCode = "403", description = "Sem permissão (exige ADMINISTRADOR)")
+    @GetMapping("/usuarios")
+    public ResponseEntity<PaginaResponse<UsuarioAdminResponse>> listarUsuarios(
+            @AuthenticationPrincipal UsuarioPrincipal principal,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "limit", defaultValue = "20") int limit) {
+        return ResponseEntity.ok(administracaoService.listarUsuarios(principal, page, limit));
+    }
+
+    @Operation(summary = "Bloquear ou reativar uma conta", description = "Perfil: ADMINISTRADOR. Não é possível alterar a própria conta. Ao bloquear, as sessões são revogadas. Registrado na auditoria.")
+    @ApiResponse(responseCode = "200", description = "Status alterado")
+    @ApiResponse(responseCode = "403", description = "Sem permissão ou tentativa de alterar a própria conta")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    @PatchMapping("/usuarios/{id}/status")
+    public ResponseEntity<UsuarioAdminResponse> alterarStatus(
+            @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Integer id,
+            @Valid @RequestBody AtualizarStatusUsuarioRequest request) {
+        return ResponseEntity.ok(administracaoService.alterarStatus(principal, id, request.ativo()));
     }
 
     @Operation(summary = "Consultar a auditoria administrativa", description = "Perfil: ADMINISTRADOR. Registros imutáveis (mudança de perfil, gestão de tipos), mais recentes primeiro.")

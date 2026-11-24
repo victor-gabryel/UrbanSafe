@@ -54,4 +54,14 @@ public class ApiException extends RuntimeException {
     public static ApiException unsupportedMediaType(String mensagem) {
         return new ApiException(HttpStatus.valueOf(415), mensagem);
     }
+
+    /** 422: o pedido é válido, mas não pode ser atendido (ex.: não existe caminho entre os pontos). */
+    public static ApiException unprocessableEntity(String mensagem) {
+        return new ApiException(HttpStatus.valueOf(422), mensagem);
+    }
+
+    /** 503: dependência externa (ex.: serviço de roteamento) indisponível. */
+    public static ApiException serviceUnavailable(String mensagem) {
+        return new ApiException(HttpStatus.valueOf(503), mensagem);
+    }
 }

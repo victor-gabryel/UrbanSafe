@@ -20,9 +20,10 @@ import { REGIAO_PADRAO } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { mensagemDeErro } from '../services/http';
 import { ocorrenciasApi } from '../services/ocorrencias';
-import type { Bbox, MapaCalor, MarcadorMapa, TipoOcorrencia } from '../services/types';
+import type { Bbox, MapaCalor, MarcadorMapa, OcorrenciaDetalhe, TipoOcorrencia } from '../services/types';
 import { colors, corDoTipo, radius, shadow } from '../theme';
 import { dataCurta } from '../utils/formatar';
+import { ehEquipe } from '../utils/perfil';
 
 const MAX_LADO_BBOX = 4.5; // o backend aceita até 5 graus
 
@@ -49,7 +50,8 @@ const PERIODOS: { label: string; dias: number | null }[] = [
 ];
 
 export default function MapaScreen({ calorInicial = false, listaInicial = false }: { calorInicial?: boolean; listaInicial?: boolean }) {
-  const { logado } = useAuth();
+  const { logado, usuario } = useAuth();
+  const equipe = ehEquipe(usuario); // Gestor/Admin usam o mapa para consulta; denunciar fica na área do Usuário
   const mapRef = useRef<MapView | null>(null);
   const regiaoRef = useRef<Region>(REGIAO_PADRAO);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,6 +72,9 @@ export default function MapaScreen({ calorInicial = false, listaInicial = false 
   const [aviso, setAviso] = useState('');
   const [permLocal, setPermLocal] = useState(false);
   const [rastrear, setRastrear] = useState(true);
+  const [detalhe, setDetalhe] = useState<OcorrenciaDetalhe | null>(null);
+  const [detalheCarregando, setDetalheCarregando] = useState(false);
+  const [detalheAberto, setDetalheAberto] = useState(false);
 
   const filtros = useMemo(
     () => ({
@@ -203,6 +208,20 @@ export default function MapaScreen({ calorInicial = false, listaInicial = false 
     }
   }
 
+  async function abrirDetalhe(id: number) {
+    setDetalhe(null);
+    setDetalheAberto(true);
+    setDetalheCarregando(true);
+    try {
+      setDetalhe(await ocorrenciasApi.detalhe(id));
+    } catch (e) {
+      setDetalheAberto(false);
+      setErro(mensagemDeErro(e));
+    } finally {
+      setDetalheCarregando(false);
+    }
+  }
+
   function focar(m: MarcadorMapa) {
     mapRef.current?.animateToRegion(
       { latitude: m.latitude, longitude: m.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 },
@@ -251,9 +270,11 @@ export default function MapaScreen({ calorInicial = false, listaInicial = false 
           <Pressable style={s.iconBtn} onPress={() => irParaMinhaLocalizacao(true)} accessibilityLabel="Minha localização">
             <Ionicons name="navigate" size={20} color={colors.primary} />
           </Pressable>
-          <Pressable style={[s.iconBtn, { backgroundColor: colors.primary }]} onPress={() => router.push('/(tabs)/denunciar')} accessibilityLabel="Denunciar">
-            <Ionicons name="add" size={26} color="#fff" />
-          </Pressable>
+          {!equipe && (
+            <Pressable style={[s.iconBtn, { backgroundColor: colors.primary }]} onPress={() => router.push('/(tabs)/denunciar')} accessibilityLabel="Denunciar">
+              <Ionicons name="add" size={26} color="#fff" />
+            </Pressable>
+          )}
         </View>
 
         {!logado && (
@@ -289,6 +310,7 @@ export default function MapaScreen({ calorInicial = false, listaInicial = false 
               title={m.titulo}
               description={`${m.tipoNome} · ${dataCurta(m.dataOcorrencia)}`}
               tracksViewChanges={rastrear}
+              onCalloutPress={() => abrirDetalhe(m.id)}
             >
               <View style={[s.pino, { backgroundColor: corDoTipo(m.tipoId, m.tipoNome) }]}>
                 <Text style={s.pinoTxt}>{m.tipoNome.charAt(0).toUpperCase()}</Text>
@@ -349,7 +371,7 @@ export default function MapaScreen({ calorInicial = false, listaInicial = false 
             keyExtractor={(m) => String(m.id)}
             ListEmptyComponent={<Text style={{ color: colors.muted, paddingVertical: 12 }}>Nenhuma ocorrência encontrada nesta área e filtros.</Text>}
             renderItem={({ item }) => (
-              <Pressable style={s.itemLista} onPress={() => focar(item)}>
+              <Pressable style={s.itemLista} onPress={() => { focar(item); abrirDetalhe(item.id); }}>
                 <View style={[s.pinoMini, { backgroundColor: corDoTipo(item.tipoId, item.tipoNome), width: 26, height: 26, borderRadius: 13 }]}>
                   <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>{item.tipoNome.charAt(0).toUpperCase()}</Text>
                 </View>
@@ -363,6 +385,30 @@ export default function MapaScreen({ calorInicial = false, listaInicial = false 
           />
         </View>
       )}
+
+      {/* Detalhes da ocorrência (consulta pública: somente PUBLICADAS) */}
+      <Modal visible={detalheAberto} transparent animationType="slide" onRequestClose={() => setDetalheAberto(false)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' }} onPress={() => setDetalheAberto(false)} />
+        <View style={s.modal}>
+          {detalheCarregando && <ActivityIndicator color={colors.primary} />}
+          {detalhe && (
+            <ScrollView style={{ maxHeight: 380 }}>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: colors.text }}>{detalhe.titulo}</Text>
+              <Text style={{ color: colors.muted, marginTop: 4, fontSize: 12 }}>
+                {detalhe.tipo.nome} · {dataCurta(detalhe.dataOcorrencia ?? detalhe.dataCadastro)}
+              </Text>
+              <Text style={{ color: colors.text, marginTop: 12, lineHeight: 20 }}>{detalhe.descricao}</Text>
+              {!!detalhe.endereco && <Text style={{ color: colors.muted, marginTop: 10, fontSize: 12 }}>Local: {detalhe.endereco}</Text>}
+              <Text style={{ color: colors.muted, marginTop: 10, fontSize: 11 }}>
+                Relato registrado por usuário; a publicação não equivale a confirmação oficial do fato.
+              </Text>
+            </ScrollView>
+          )}
+          <Pressable style={[s.modalBtn, { backgroundColor: colors.primary, marginTop: 16 }]} onPress={() => setDetalheAberto(false)}>
+            <Text style={{ color: '#fff', fontWeight: '700' }}>Fechar</Text>
+          </Pressable>
+        </View>
+      </Modal>
 
       {/* Modal de filtros */}
       <Modal visible={filtroAberto} transparent animationType="slide" onRequestClose={() => setFiltroAberto(false)}>

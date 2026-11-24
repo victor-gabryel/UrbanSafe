@@ -10,8 +10,8 @@ import br.com.urbansafe.backend.security.UsuarioPrincipal;
 
 /**
  * Regras de visibilidade e propriedade compartilhadas pelos serviços de ocorrência, mídia, histórico e moderação.
- * Visível = GESTOR/ADMINISTRADOR (qualquer status), o autor (qualquer status) ou qualquer usuário autenticado
- * quando PUBLICADA. Ocorrência invisível responde 404 (não revela que existe).
+ * Visível = GESTOR/ADMINISTRADOR (qualquer status), o autor (qualquer status) ou qualquer pessoa, inclusive o
+ * visitante anônimo (principal nulo), quando PUBLICADA. Ocorrência invisível responde 404 (não revela que existe).
  */
 @Component
 public class OcorrenciaAcesso {
@@ -37,12 +37,12 @@ public class OcorrenciaAcesso {
     }
 
     public boolean podeVer(UsuarioPrincipal principal, Ocorrencia ocorrencia) {
-        return principal.isEquipe()
+        return (principal != null && principal.isEquipe())
                 || ehAutor(principal, ocorrencia)
                 || ocorrencia.getStatus() == StatusOcorrencia.PUBLICADA;
     }
 
     public boolean ehAutor(UsuarioPrincipal principal, Ocorrencia ocorrencia) {
-        return principal.id() != null && principal.id().equals(ocorrencia.getUsuarioId());
+        return principal != null && principal.id() != null && principal.id().equals(ocorrencia.getUsuarioId());
     }
 }

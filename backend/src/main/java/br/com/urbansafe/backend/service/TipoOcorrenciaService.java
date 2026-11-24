@@ -36,7 +36,7 @@ public class TipoOcorrenciaService {
     @Transactional(readOnly = true)
     public TipoOcorrenciaResponse buscar(UsuarioPrincipal principal, Integer id) {
         TipoOcorrencia tipo = carregar(id);
-        if (!tipo.isAtivo() && !principal.isAdministrador()) {
+        if (!tipo.isAtivo() && (principal == null || !principal.isAdministrador())) {
             throw ApiException.notFound("Tipo de ocorrência não encontrado.");
         }
         return TipoOcorrenciaResponse.de(tipo);
