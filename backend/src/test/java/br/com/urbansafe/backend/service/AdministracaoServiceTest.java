@@ -40,7 +40,8 @@ class AdministracaoServiceTest {
         usuarioRepository = mock(UsuarioRepository.class);
         perfilRepository = mock(PerfilRepository.class);
         auditoria = mock(AuditoriaService.class);
-        service = new AdministracaoService(usuarioRepository, perfilRepository, auditoria);
+        service = new AdministracaoService(usuarioRepository, perfilRepository, auditoria,
+                mock(RefreshTokenService.class));
 
         when(perfilRepository.findByNome("GESTOR")).thenReturn(Optional.of(Fixtures.perfil("GESTOR")));
         when(perfilRepository.findByNome("USUARIO")).thenReturn(Optional.of(Fixtures.perfil("USUARIO")));
