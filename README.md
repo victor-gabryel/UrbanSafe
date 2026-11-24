@@ -127,6 +127,42 @@ Tokens ficam no `expo-secure-store`; o Axios renova o access token automaticamen
 ### Mudança feita no backend para o modo visitante
 Antes, **todo** `/api/mapa/**` exigia JWT, o que impedia a navegação anônima. Agora são públicos **somente** `GET /api/mapa/ocorrencias`, `GET /api/mapa/calor` e `GET /api/tipos-ocorrencia`; eles só retornam ocorrências `PUBLICADAS` e nenhum dado pessoal. Um visitante não consegue pedir outro status (403). Todo o resto continua autenticado, e perfis USUARIO/GESTOR/ADMINISTRADOR foram mantidos.
 
+## Perfis Gestor e Administrador
+
+O app tem três áreas, todas com a mesma identidade visual (cores, cabeçalho azul, cartões, botões e barra de abas do Usuário).
+Após o login o app abre a área do perfil da conta: `USUARIO` → abas atuais; `GESTOR` → `/gestor`; `ADMINISTRADOR` → `/admin`.
+Visitante e Usuário continuam exatamente como antes; Gestor/Admin que abrirem `/(tabs)` são redirecionados para a própria área.
+
+**Como acessar:** não há cadastro de perfil privilegiado. Entre com uma conta existente que tenha o perfil (o 1º administrador precisa ser definido no banco:
+`UPDATE usuarios SET perfil_id = (SELECT id FROM perfis WHERE nome = 'ADMINISTRADOR') WHERE email = 'seu@email.com';`). Depois o administrador promove outros pelo app (aba Usuários). A mudança vale a partir do próximo login.
+
+### Gestor (`/gestor`) — moderação
+| Tela | Função | Endpoint |
+|---|---|---|
+| Painel | Contadores por situação (pendente/publicada/oculta/rejeitada) e atalhos | `GET /api/admin/ocorrencias?status=…&limit=1` |
+| Fila | Ocorrências pendentes, filtro por tipo, paginação | `GET /api/admin/ocorrencias/pendentes` |
+| Ocorrências | Todas, filtros de status e tipo | `GET /api/admin/ocorrencias` |
+| Detalhe (`/moderar/[id]`) | Descrição, autor (id), fotos, relevância, aprovar / rejeitar / solicitar correção / ocultar, decisões e histórico | `GET /api/ocorrencias/{id}`, `/midias`, `/historico`, `GET`/`POST /api/ocorrencias/{id}/moderacao`, `PATCH /api/ocorrencias/{id}` (relevância) |
+| Mapa | Mesmo mapa/mapa de calor do Usuário | `GET /api/mapa/*` |
+| Perfil | Mesmo perfil do Usuário (nome, sair) | `GET /api/auth/me`, `PATCH /api/usuarios/me` |
+
+As ações exibidas seguem as transições do backend (`AcaoModeracao`); justificativa obrigatória, exceto ao aprovar. O backend impede moderar a própria ocorrência.
+
+### Administrador (`/admin`) — tudo do Gestor (exceto a aba Fila, coberta por Ocorrências ▸ Pendentes) mais:
+| Tela | Função | Endpoint |
+|---|---|---|
+| Usuários | Listar, bloquear/reativar, alterar perfil (com confirmação) | `GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/{id}/status`, `/perfil` |
+| Tipos | Criar, editar, desativar/reativar tipos | `POST`/`PATCH`/`DELETE /api/tipos-ocorrencia` |
+| Auditoria (pelo painel) | Registros administrativos, mais recentes primeiro | `GET /api/admin/auditoria` |
+
+### Dependem do backend / não implementadas (nada foi simulado)
+- Não existem no backend: `/api/admin/dashboard`, estatísticas, configurações e denúncias de conteúdo (previstos no escopo). O painel usa só os totais das listagens existentes.
+- `GET /api/tipos-ocorrencia` lista **apenas tipos ativos**; não há como listar os inativos. O app só oferece "Reativar" para tipos desativados na sessão atual.
+- Não há busca/filtro de usuários nem de auditoria no backend (somente paginação).
+- O backend não devolve nome do autor nem do moderador, apenas o id.
+- Vídeos/documentos anexados são listados, mas só imagens são exibidas no app.
+- Gestor/Admin não usam as abas "Denunciar" e "Rotas" do Usuário.
+
 ## Limitações conhecidas (sem dados fictícios)
 - **Rotas:** o backend não tem módulo de rotas. A aba "Rotas"/"Calcular rota" apenas abre o trajeto no app de mapas do celular (geocodificação do sistema); não calcula rotas "seguras".
 - **Login por "usuário":** o backend autentica somente por **e-mail**. Não existem as "contas de demonstração" (admin/gestor) do protótipo do Figma.
@@ -134,7 +170,7 @@ Antes, **todo** `/api/mapa/**` exigia JWT, o que impedia a navegação anônima.
   ```powershell
   docker exec -it backend-db psql -U urbansafe -d urbansafe -c "UPDATE usuarios SET email_verificado = true WHERE email = 'seu@email.com';"
   ```
-- **Promover perfis:** só via `PATCH /api/admin/usuarios/{id}/perfil` (ADMINISTRADOR); não há tela para isso no app.
+- **Promover perfis:** pela aba Usuários da área do Administrador (`PATCH /api/admin/usuarios/{id}/perfil`).
 - **Mapa de calor:** desenhado com círculos sobre o mapa (funciona igual em Android e iOS; o componente `Heatmap` nativo só existe no Google Maps).
 - **Fotos:** o backend só aceita mídia enquanto a ocorrência está `PENDENTE`. Tipos que não exigem revisão nascem `PUBLICADA` e a foto é recusada (o app avisa).
 - Pastas `android/` e `ios/` foram mantidas, mas foram geradas para o SDK 57 e **não são usadas pelo Expo Go**. Se for fazer um Development Build, rode antes `npx expo prebuild --clean`.

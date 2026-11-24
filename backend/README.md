@@ -421,3 +421,13 @@ python scripts/padronizar_java.py --check   # só verifica (sai com código 1 se
 O `checkstyle:check` também roda na fase `verify` (`./mvnw verify`), depois dos testes; não afeta `spring-boot:run`,
 `mvn test` nem o `Dockerfile`. As migrations em `src/main/resources/db/migration` **não** são reformatadas de propósito:
 depois de aplicadas, o Flyway valida o checksum de cada uma.
+
+## Rotas, acesso público e administração (novidades)
+
+- `POST /api/rotas/calcular` (público), `GET/DELETE /api/rotas`, `GET /api/usuarios/me/rotas|ocorrencias`: veja [`docs/API-ROTAS.md`](docs/API-ROTAS.md).
+- Visitante (sem login): `GET /api/ocorrencias`, `GET /api/ocorrencias/{id}`, `GET /api/tipos-ocorrencia/{id}`, mapa, mapa de calor, rotas e `GET /api/health` (somente ocorrências PUBLICADAS).
+- Fila de moderação (GESTOR e ADMINISTRADOR): `GET /api/admin/ocorrencias/pendentes`, `GET /api/admin/ocorrencias`, `PATCH /api/admin/ocorrencias/{id}/status` (passa pela moderação).
+- Administração (ADMINISTRADOR): `GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/{id}/status` (bloquear/reativar).
+- Migration nova: `V7__criar_rotas.sql` (Flyway aplica sozinho ao iniciar).
+- Retenção: rotina diária remove tokens vencidos há mais de 30 dias (`TOKENS_RETENCAO_DIAS`). Recuperação de senha expira em 30 min (padrão).
+- Variáveis novas (todas opcionais): `ROTAS_OSRM_URL_A_PE`, `ROTAS_OSRM_URL_BICICLETA`, `ROTAS_DISTANCIA_MAXIMA_KM`, `ROTAS_LIMITE_REQUISICOES`, `ROTAS_EXPOSICAO_*`.
