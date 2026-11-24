@@ -1,6 +1,0 @@
-node_modules/
-target/
-.expo/
-.env
-backend/storage/
-*.log
